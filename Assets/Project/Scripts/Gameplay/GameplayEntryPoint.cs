@@ -30,6 +30,7 @@ namespace Project.Scripts.Gameplay
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
         private ScoreService _scoreService;
+        private GameStateService _gameStateService;
         private GameAudioController _gameAudioController;
 
 
@@ -38,6 +39,7 @@ namespace Project.Scripts.Gameplay
             _swapHandler?.Dispose();
             _inputService?.Dispose();
             _scoreService?.Dispose();
+            _gameStateService?.Dispose();
         }
 
 
@@ -86,6 +88,8 @@ namespace Project.Scripts.Gameplay
             _scoreService = new ScoreService(_scoreConfig);
             _scoreHUDView.Bind(_scoreService);
 
+            _gameStateService = new GameStateService();
+
             var orchestrator = new BoardOrchestrator(
                 _eventBus,
                 gridManager,
@@ -93,7 +97,8 @@ namespace Project.Scripts.Gameplay
                 matchFinder,
                 _swapHandler,
                 moveChecker,
-                _scoreService);
+                _scoreService,
+                _gameStateService);
 
             _gameAudioController = new GameAudioController(_audioService, _eventBus);
             _gameAudioController.StartMusic();

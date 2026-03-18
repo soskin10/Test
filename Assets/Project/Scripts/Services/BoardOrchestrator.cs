@@ -18,12 +18,14 @@ namespace Project.Scripts.Services
         private readonly ISwapInputHandler _swapHandler;
         private readonly IMoveChecker _moveChecker;
         private readonly IScoreService _scoreService;
+        private readonly IGameStateService _gameStateService;
         private readonly EventBus _eventBus;
         private bool _isProcessing;
 
 
         public BoardOrchestrator(EventBus eventBus, IGridManager grid, IGravityHandler gravity, IMatchFinder matchFinder,
-            ISwapInputHandler swapHandler, IMoveChecker moveChecker, IScoreService scoreService)
+            ISwapInputHandler swapHandler, IMoveChecker moveChecker, IScoreService scoreService,
+            IGameStateService gameStateService)
         {
             _eventBus = eventBus;
             _grid = grid;
@@ -32,6 +34,7 @@ namespace Project.Scripts.Services
             _swapHandler = swapHandler;
             _moveChecker = moveChecker;
             _scoreService = scoreService;
+            _gameStateService = gameStateService;
         }
 
         public UniTask InitAsync()
@@ -50,6 +53,9 @@ namespace Project.Scripts.Services
         private void OnSwapRequested(SwapRequest request)
         {
             if (_isProcessing)
+                return;
+
+            if (false == _gameStateService.IsPlaying)
                 return;
 
             HandleSwapAsync(request).Forget();
