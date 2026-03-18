@@ -14,9 +14,13 @@ namespace Project.Scripts.Gameplay
         {
             if (_frame)
             {
+                var parentScale = _frame.transform.parent
+                    ? _frame.transform.parent.lossyScale
+                    : Vector3.one;
+
                 _frame.size = new Vector2(
-                    width * cellSize + framePadding * 2f,
-                    height * cellSize + framePadding * 2f
+                    (width * cellSize + framePadding * 2f) / parentScale.x,
+                    (height * cellSize + framePadding * 2f) / parentScale.y
                 );
             }
 
@@ -26,9 +30,13 @@ namespace Project.Scripts.Gameplay
                 var targetHeight = (height + maskTopPadding) * cellSize + framePadding;
                 var spriteSize = _spriteMask.sprite.bounds.size;
 
+                var parentScale = _spriteMask.transform.parent
+                    ? _spriteMask.transform.parent.lossyScale
+                    : Vector3.one;
+
                 _spriteMask.transform.localScale = new Vector3(
-                    targetWidth / spriteSize.x,
-                    targetHeight / spriteSize.y,
+                    targetWidth / (spriteSize.x * parentScale.x),
+                    targetHeight / (spriteSize.y * parentScale.y),
                     1f
                 );
             }

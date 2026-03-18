@@ -109,9 +109,11 @@ namespace Project.Scripts.Gameplay
             var cam = Camera.main;
             var camHeight = cam.orthographicSize * 2f;
             var camWidth = camHeight * cam.aspect;
-            var usableWidth = camWidth * (1f - config.BoardPaddingPercent);
-            
-            return usableWidth / config.Width;
+
+            var cellSizeByWidth = camWidth * (1f - config.BoardPaddingPercent) / config.Width;
+            var cellSizeByHeight = camHeight * (1f - config.UIReservedHeightPercent) / config.Height;
+
+            return Mathf.Min(cellSizeByWidth, cellSizeByHeight);
         }
 
         private Vector3 ComputeGridOrigin(BoardConfig config, float cellSize)

@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.BoardConfig
   _width: 8
   _height: 8
-  _boardPaddingPercent: 0.05
+  _boardPaddingPercent: 0.08
+  _uiReservedHeightPercent: 0.4
   _tileScale: 0.85
   _framePadding: 0.1
   _maskTopPadding: 2
