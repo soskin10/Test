@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
 using Project.Scripts.Tiles;
 using UnityEngine;
 
@@ -9,98 +8,107 @@ namespace Project.Scripts.Services.Grid
     {
         private readonly int _minLength;
 
+        private static readonly Vector2Int[] Directions =
+        {
+            Vector2Int.up, Vector2Int.down,
+            Vector2Int.left, Vector2Int.right
+        };
+
 
         public MatchFinder(int minLength)
         {
             _minLength = minLength;
         }
 
-        public UniTask InitAsync() => UniTask.CompletedTask;
-
         public List<MatchResult> FindMatches(TileType[,] grid)
         {
             var width = grid.GetLength(0);
             var height = grid.GetLength(1);
-            var runs = new List<(HashSet<Vector2Int> pos, int len, bool hasH, bool hasV)>();
+            var runs = new List<Run>();
 
-            for (int y = 0; y < height; y++)
+            for (var y = 0; y < height; y++)
             {
-                int x = 0;
+                var x = 0;
                 while (x < width)
                 {
                     var type = grid[x, y];
                     if (type == TileType.None)
                     {
-                        x++;
+                        x++; 
                         continue;
                     }
 
-                    int start = x;
-                    while (x < width && grid[x, y] == type) x++;
-                    int len = x - start;
-                    if (len < _minLength)
+                    var start = x;
+                    while (x < width && grid[x, y] == type) 
+                        x++;
+                    
+                    var len = x - start;
+                    if (len < _minLength) 
                         continue;
 
                     var set = new HashSet<Vector2Int>(len);
-                    for (int i = start; i < x; i++)
+                    for (var i = start; i < x; i++)
                         set.Add(new Vector2Int(i, y));
 
-                    runs.Add((set, len, true, false));
+                    runs.Add(new Run(set, len, hasH: true, hasV: false, type));
                 }
             }
 
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                int y = 0;
+                var y = 0;
                 while (y < height)
                 {
                     var type = grid[x, y];
-                    if (type == TileType.None)
-                    {
-                        y++;
-                        continue;
+                    if (type == TileType.None) 
+                    { 
+                        y++; 
+                        continue; 
                     }
 
-                    int start = y;
-                    while (y < height && grid[x, y] == type)
+                    var start = y;
+                    while (y < height && grid[x, y] == type) 
                         y++;
-
-                    int len = y - start;
-                    if (len < _minLength)
+                    
+                    var len = y - start;
+                    if (len < _minLength) 
                         continue;
 
                     var set = new HashSet<Vector2Int>(len);
-                    for (int i = start; i < y; i++)
+                    for (var i = start; i < y; i++)
                         set.Add(new Vector2Int(x, i));
 
-                    runs.Add((set, len, false, true));
+                    runs.Add(new Run(set, len, hasH: false, hasV: true, type));
                 }
             }
 
-            return Merge(runs);
+            Merge(runs);
+            
+            return BuildResults(runs);
         }
 
 
-        private static List<MatchResult> Merge(List<(HashSet<Vector2Int> pos, int len, bool hasH, bool hasV)> runs)
+        private static void Merge(List<Run> runs)
         {
             bool anyMerge;
             do
             {
                 anyMerge = false;
-                for (int i = 0; i < runs.Count && false == anyMerge; i++)
+                for (var i = 0; i < runs.Count && false == anyMerge; i++)
                 {
-                    for (int j = i + 1; j < runs.Count && false == anyMerge; j++)
+                    for (var j = i + 1; j < runs.Count && false == anyMerge; j++)
                     {
-                        if (false == runs[i].pos.Overlaps(runs[j].pos))
+                        if (false == runs[i].Pos.Overlaps(runs[j].Pos))
                             continue;
 
-                        var merged = new HashSet<Vector2Int>(runs[i].pos);
-                        merged.UnionWith(runs[j].pos);
-                        runs[i] = (
+                        var merged = new HashSet<Vector2Int>(runs[i].Pos);
+                        merged.UnionWith(runs[j].Pos);
+                        runs[i] = new Run(
                             merged,
-                            Mathf.Max(runs[i].len, runs[j].len),
-                            runs[i].hasH || runs[j].hasH,
-                            runs[i].hasV || runs[j].hasV
+                            Mathf.Max(runs[i].Len, runs[j].Len),
+                            runs[i].HasH || runs[j].HasH,
+                            runs[i].HasV || runs[j].HasV,
+                            runs[i].Type
                         );
                         runs.RemoveAt(j);
                         anyMerge = true;
@@ -108,17 +116,83 @@ namespace Project.Scripts.Services.Grid
                 }
             }
             while (anyMerge);
+        }
 
+        private static List<MatchResult> BuildResults(List<Run> runs)
+        {
             var results = new List<MatchResult>(runs.Count);
-            for (int i = 0; i < runs.Count; i++)
+            for (var i = 0; i < runs.Count; i++)
+            {
+                var run = runs[i];
                 results.Add(new MatchResult
                 {
-                    Positions = new List<Vector2Int>(runs[i].pos),
-                    MaxLineLength = runs[i].len,
-                    IsComplex = runs[i].hasH && runs[i].hasV
+                    Positions = new List<Vector2Int>(run.Pos),
+                    MaxLineLength = run.Len,
+                    IsComplex = run.HasH && run.HasV,
+                    TileType = run.Type,
+                    Shape = ComputeShape(run.Pos, run.HasH, run.HasV),
+                    Center = ComputeCenter(run.Pos)
                 });
-
+            }
+            
             return results;
+        }
+
+        private static MatchShape ComputeShape(HashSet<Vector2Int> positions, bool hasH, bool hasV)
+        {
+            if (false == hasV) 
+                return MatchShape.Horizontal;
+            
+            if (false == hasH) 
+                return MatchShape.Vertical;
+
+            foreach (var pos in positions)
+            {
+                var neighborCount = 0;
+                for (var d = 0; d < Directions.Length; d++)
+                    if (positions.Contains(pos + Directions[d]))
+                        neighborCount++;
+
+                if (neighborCount >= 3)
+                    return MatchShape.TShape;
+            }
+
+            return MatchShape.LShape;
+        }
+
+        private static Vector2Int ComputeCenter(HashSet<Vector2Int> positions)
+        {
+            int sumX = 0, sumY = 0;
+            foreach (var pos in positions)
+            {
+                sumX += pos.x;
+                sumY += pos.y;
+            }
+            
+            return new Vector2Int(
+                Mathf.RoundToInt((float)sumX / positions.Count),
+                Mathf.RoundToInt((float)sumY / positions.Count)
+            );
+        }
+
+
+        private readonly struct Run
+        {
+            public readonly HashSet<Vector2Int> Pos;
+            public readonly int Len;
+            public readonly bool HasH;
+            public readonly bool HasV;
+            public readonly TileType Type;
+
+            
+            public Run(HashSet<Vector2Int> pos, int len, bool hasH, bool hasV, TileType type)
+            {
+                Pos = pos;
+                Len = len;
+                HasH = hasH;
+                HasV = hasV;
+                Type = type;
+            }
         }
     }
 }
