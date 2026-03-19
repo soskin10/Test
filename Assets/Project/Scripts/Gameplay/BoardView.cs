@@ -6,6 +6,7 @@ namespace Project.Scripts.Gameplay
     {
         [Tooltip("SpriteRenderer of the frame that surrounds the board (Draw Mode must be Sliced)")]
         [SerializeField] private SpriteRenderer _frame;
+        
         [Tooltip("SpriteMask used to hide tiles appearing above the board during gravity")]
         [SerializeField] private SpriteMask _spriteMask;
 

@@ -6,6 +6,7 @@ namespace Project.Scripts.Behaviours
     [CreateAssetMenu(fileName = "BombTileBehaviour", menuName = "Configs/Behaviours/Bomb")]
     public class BombTileBehaviour : TileBehaviour
     {
+        [Tooltip("Grid radius of the explosion — destroys all tiles within this many cells")]
         [SerializeField] private int _radius = 1;
 
 

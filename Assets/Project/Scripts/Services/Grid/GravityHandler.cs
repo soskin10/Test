@@ -26,10 +26,10 @@ namespace Project.Scripts.Services.Grid
         public async UniTask ApplyGravity()
         {
             var tasks = new List<UniTask>();
-            for (int x = 0; x < _config.Width; x++)
+            for (var x = 0; x < _config.Width; x++)
             {
-                int writeY = 0;
-                for (int readY = 0; readY < _config.Height; readY++)
+                var writeY = 0;
+                for (var readY = 0; readY < _config.Height; readY++)
                 {
                     var tile = _grid.GetTile(new Vector2Int(x, readY));
                     if (!tile)
@@ -54,8 +54,8 @@ namespace Project.Scripts.Services.Grid
         public async UniTask SpawnNewTiles(SpawnContext context)
         {
             var emptyPositions = new List<Vector2Int>();
-            for (int x = 0; x < _config.Width; x++)
-                for (int y = _config.Height - 1; y >= 0; y--)
+            for (var x = 0; x < _config.Width; x++)
+                for (var y = _config.Height - 1; y >= 0; y--)
                 {
                     var pos = new Vector2Int(x, y);
                     if (!_grid.GetTile(pos))
@@ -65,11 +65,11 @@ namespace Project.Scripts.Services.Grid
             Shuffle(emptyPositions);
 
             var spawnHeights = new int[_config.Width];
-            for (int x = 0; x < _config.Width; x++)
+            for (var x = 0; x < _config.Width; x++)
                 spawnHeights[x] = _config.Height;
 
             var tasks = new List<UniTask>();
-            for (int i = 0; i < emptyPositions.Count; i++)
+            for (var i = 0; i < emptyPositions.Count; i++)
             {
                 var pos = emptyPositions[i];
                 var tileConfig = _grid.ResolveNextTile(context);
@@ -86,9 +86,9 @@ namespace Project.Scripts.Services.Grid
 
         private static void Shuffle(List<Vector2Int> list)
         {
-            for (int i = list.Count - 1; i > 0; i--)
+            for (var i = list.Count - 1; i > 0; i--)
             {
-                int j = Random.Range(0, i + 1);
+                var j = Random.Range(0, i + 1);
                 (list[i], list[j]) = (list[j], list[i]);
             }
         }

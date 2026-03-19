@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
 using Project.Scripts.Tiles;
 using UnityEngine;
@@ -19,16 +18,15 @@ namespace Project.Scripts.Services.Grid
             _config = config;
         }
 
-        public UniTask InitAsync() => UniTask.CompletedTask;
-
         public bool HasPossibleMoves()
         {
             var state = _grid.GetGridState();
-            for (int x = 0; x < _config.Width; x++)
-                for (int y = 0; y < _config.Height; y++)
+            for (var x = 0; x < _config.Width; x++)
+                for (var y = 0; y < _config.Height; y++)
                 {
                     var tileA = _grid.GetTile(new Vector2Int(x, y));
-                    if (!tileA) continue;
+                    if (!tileA) 
+                        continue;
 
                     if (x + 1 < _config.Width)
                     {

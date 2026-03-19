@@ -13,6 +13,12 @@ namespace Project.Scripts.Services.UISystem
         protected CompositeDisposable Disposables { get; } = new();
         
         
+        private void OnDestroy()
+        {
+            Disposables.Dispose();
+        }
+        
+        
         public async UniTask InitializeAsync(TViewModel viewModel)
         {
             ViewModel = viewModel;
@@ -71,12 +77,6 @@ namespace Project.Scripts.Services.UISystem
         
         protected virtual void OnClose()
         {
-        }
-        
-        
-        private void OnDestroy()
-        {
-            Disposables.Dispose();
         }
     }
 }

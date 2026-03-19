@@ -195,7 +195,8 @@ namespace Project.Scripts.Services
         {
             int count = 0;
             foreach (var type in state)
-                if (type != TileType.None) count++;
+                if (type != TileType.None) 
+                    count++;
 
             return count;
         }
