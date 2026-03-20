@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Behaviours;
 using Project.Scripts.Services.Damage;
+using Project.Scripts.Services.Damage;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Services.Grid;
@@ -139,7 +140,11 @@ namespace Project.Scripts.Services
                 }
 
                 if (waves.Count > 0 || bombDamage > 0)
-                    Debug.Log(new DamageBreakdown(waves, bombDamage).ToLogString());
+                {
+                    var breakdown = new DamageBreakdown(waves, bombDamage);
+                    _eventBus.Publish(new DamageDealtEvent(breakdown.Total));
+                    Debug.Log(breakdown.ToLogString());
+                }
             }
             finally
             {

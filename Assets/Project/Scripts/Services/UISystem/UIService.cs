@@ -32,6 +32,52 @@ namespace Project.Scripts.Services.UISystem
             Debug.Log($"View {type.Name} registered on layer {layer}");
         }
 
+        public async UniTask<TView> Show<TView, TViewModel>(TViewModel viewModel)
+            where TView : BaseView<TViewModel>
+            where TViewModel : BaseViewModel
+        {
+            var viewType = typeof(TView);
+
+            if (_activeViews.TryGetValue(viewType, out var existingView))
+            {
+                var typedView = existingView as TView;
+                if (!typedView)
+                {
+                    Debug.LogError($"Active view is not of type {viewType.Name}, removing corrupted entry");
+                    _activeViews.Remove(viewType);
+                }
+                else
+                {
+                    await typedView.ShowAsync();
+                    return typedView;
+                }
+            }
+
+            if (false == _registeredViews.TryGetValue(viewType, out var prefab))
+            {
+                Debug.LogError($"View {viewType.Name} not registered!");
+                return null;
+            }
+
+            var canvas = GetCanvasForLayer(_viewLayers[viewType]);
+            var viewObject = Instantiate(prefab, canvas.transform);
+            var view = viewObject.GetComponent<TView>();
+            if (!view)
+            {
+                Debug.LogError($"Prefab doesn't have {viewType.Name} component!");
+                Destroy(viewObject);
+                return null;
+            }
+
+            await view.InitializeAsync(viewModel);
+            await view.ShowAsync();
+
+            _activeViews[viewType] = view;
+
+            Debug.Log($"View {viewType.Name} shown");
+            return view;
+        }
+
         public async UniTask<TView> Show<TView, TViewModel>()
             where TView : BaseView<TViewModel>
             where TViewModel : BaseViewModel, new()

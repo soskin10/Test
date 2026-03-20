@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Services;
 using Project.Scripts.Services.Audio;
 using Project.Scripts.Services.Audio.AudioSystem;
@@ -7,6 +8,7 @@ using Project.Scripts.Services.Damage;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.Grid;
 using Project.Scripts.Services.Input;
+using Project.Scripts.Services.UISystem;
 using UnityEngine;
 using VContainer;
 #if UNITY_EDITOR
@@ -23,6 +25,9 @@ namespace Project.Scripts.Gameplay
         [Tooltip("View component that sizes the board frame and spawn mask at runtime")]
         [SerializeField] private BoardView _boardView;
 
+        [Tooltip("Prefab containing the GameplayView component — instantiated into the main canvas on start")]
+        [SerializeField] private GameObject _gameplayViewPrefab;
+
 
         private EventBus _eventBus;
         private AudioService _audioService;
@@ -31,6 +36,8 @@ namespace Project.Scripts.Gameplay
         private InputConfig _inputConfig;
         private IDamageCalculator _damageCalculator;
         private SpecialTileConfig _specialTileConfig;
+        private UIService _uiService;
+        private GameplayViewModel _gameplayViewModel;
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
         private GameStateService _gameStateService;
@@ -44,6 +51,7 @@ namespace Project.Scripts.Gameplay
         
         private void OnDestroy()
         {
+            _uiService?.Close<GameplayView>();
             _swapHandler?.Dispose();
             _inputService?.Dispose();
             _gameStateService?.Dispose();
@@ -58,7 +66,9 @@ namespace Project.Scripts.Gameplay
             AnimationConfig animConfig,
             InputConfig inputConfig,
             IDamageCalculator damageCalculator,
-            SpecialTileConfig specialTileConfig)
+            SpecialTileConfig specialTileConfig,
+            UIService uiService,
+            GameplayViewModel gameplayViewModel)
         {
             _eventBus = eventBus;
             _audioService = audioService;
@@ -67,11 +77,16 @@ namespace Project.Scripts.Gameplay
             _inputConfig = inputConfig;
             _damageCalculator = damageCalculator;
             _specialTileConfig = specialTileConfig;
+            _uiService = uiService;
+            _gameplayViewModel = gameplayViewModel;
         }
 
 
         private async UniTaskVoid InitAsync()
         {
+            _uiService.RegisterView<GameplayView>(_gameplayViewPrefab, UILayer.Main);
+            await _uiService.Show<GameplayView, GameplayViewModel>(_gameplayViewModel);
+
             var cellSize = ComputeCellSize(_boardConfig);
             var pool = new TilePool(_boardConfig.TilePrefab, _tileContainer, _animConfig, cellSize, _boardConfig.TileScale);
             var matchFinder = new MatchFinder(_boardConfig.MinMatchLength);

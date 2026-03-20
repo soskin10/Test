@@ -15,7 +15,18 @@
 
         public readonly struct BombActivatedEvent
         {
-            
+
+        }
+
+        public readonly struct DamageDealtEvent
+        {
+            public int Total { get; }
+
+
+            public DamageDealtEvent(int total)
+            {
+                Total = total;
+            }
         }
     }
 }
