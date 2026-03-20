@@ -9,6 +9,9 @@ using Project.Scripts.Services.Grid;
 using Project.Scripts.Services.Input;
 using UnityEngine;
 using VContainer;
+#if UNITY_EDITOR
+using Project.Scripts.Services.BoardEdit;
+#endif
 
 namespace Project.Scripts.Gameplay
 {
@@ -103,6 +106,11 @@ namespace Project.Scripts.Gameplay
 
             _gameAudioController = new GameAudioController(_audioService, _eventBus);
             _gameAudioController.StartMusic();
+
+#if UNITY_EDITOR
+            var editHandler = gameObject.AddComponent<BoardEditClickHandler>();
+            editHandler.Init(gridManager, _boardConfig, cellSize);
+#endif
 
             await _inputService.InitAsync();
             await _swapHandler.InitAsync();

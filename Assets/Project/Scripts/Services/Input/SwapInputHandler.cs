@@ -45,6 +45,10 @@ namespace Project.Scripts.Services.Input
 
         private void HandleDragStarted(Vector2 screenPos)
         {
+#if UNITY_EDITOR
+            if (Project.Scripts.Services.BoardEdit.BoardEditMode.IsActive)
+                return;
+#endif
             var worldPos = ScreenToWorld(screenPos);
             _startGridPos = _grid.WorldToGrid(worldPos);
             _hasPendingSwap = _grid.IsValidPosition(_startGridPos) && _grid.GetTile(_startGridPos) != null;

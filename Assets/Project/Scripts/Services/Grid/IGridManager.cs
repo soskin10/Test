@@ -35,5 +35,9 @@ namespace Project.Scripts.Services.Grid
         UniTask ConsumeTile(Vector2Int pos);
         UniTask ShuffleGrid();
         void ForceInjectMove();
+
+#if UNITY_EDITOR
+        void ReplaceForEdit(Vector2Int pos, TileKind kind);
+#endif
     }
 }

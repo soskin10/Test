@@ -318,6 +318,35 @@ namespace Project.Scripts.Services.Grid
             ReInitTileAt(3, 0, configT);
         }
 
+#if UNITY_EDITOR
+        public void ReplaceForEdit(Vector2Int pos, TileKind kind)
+        {
+            var tile = _grid[pos.x, pos.y];
+            if (false == tile)
+                return;
+
+            var config = FindConfigForKind(kind);
+            if (!config)
+                return;
+
+            tile.Init(config, pos);
+        }
+
+        private TileConfig FindConfigForKind(TileKind kind)
+        {
+            for (var i = 0; i < _boardConfig.RegularTiles.Length; i++)
+                if (_boardConfig.RegularTiles[i].Kind == kind)
+                    return _boardConfig.RegularTiles[i];
+
+            if (_boardConfig.SpecialTiles != null)
+                for (var i = 0; i < _boardConfig.SpecialTiles.Length; i++)
+                    if (_boardConfig.SpecialTiles[i].Kind == kind)
+                        return _boardConfig.SpecialTiles[i];
+
+            return null;
+        }
+#endif
+
         private async UniTask ProcessScheduledRemovals()
         {
             while (_scheduledRemovals.Count > 0)
