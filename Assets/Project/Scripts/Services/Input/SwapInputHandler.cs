@@ -65,6 +65,9 @@ namespace Project.Scripts.Services.Input
             if (false == _grid.IsValidPosition(target))
                 return;
 
+            if (false == _grid.GetTile(target))
+                return;
+
             OnSwapRequested?.Invoke(new SwapRequest(_startGridPos, target));
         }
 

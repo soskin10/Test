@@ -13,7 +13,7 @@ namespace Project.Scripts.Services.Grid
         private readonly AnimationConfig _animConfig;
         private readonly TilePool _pool;
         private readonly Tile[,] _grid;
-        private readonly List<Vector2Int> _scheduledRemovals = new();
+        private readonly HashSet<Vector2Int> _scheduledRemovals = new();
         private readonly float _cellSize;
         private Vector3 _origin;
 
@@ -88,8 +88,6 @@ namespace Project.Scripts.Services.Grid
                 _scheduledRemovals.Add(positions[i]);
         }
 
-        // ── Queries ───────────────────────────────────────────────────────────────
-
         public List<Vector2Int> GetNeighboursInRadius(Vector2Int center, int radius)
         {
             var result = new List<Vector2Int>();
@@ -161,8 +159,6 @@ namespace Project.Scripts.Services.Grid
             return result;
         }
 
-        // Returns the regular (non-special) tile type with the highest count on the board.
-        // Used by Storm Rune when activated via chain reaction (no swap partner to read color from).
         public TileType GetMostCommonRegularType()
         {
             var counts = new Dictionary<TileType, int>();
@@ -197,8 +193,6 @@ namespace Project.Scripts.Services.Grid
 
             return bestType;
         }
-
-        // ── Async operations ──────────────────────────────────────────────────────
 
         public async UniTask PopulateGrid()
         {
@@ -259,7 +253,6 @@ namespace Project.Scripts.Services.Grid
             await tile.Animator.AnimateDestroy();
             _grid[pos.x, pos.y] = null;
             _pool.Release(tile);
-            // Intentionally does NOT call OnTileDestroyed — tile is silently consumed.
         }
 
         public async UniTask SwapTiles(Vector2Int from, Vector2Int to)
@@ -342,11 +335,6 @@ namespace Project.Scripts.Services.Grid
             ReInitTileAt(3, 0, configT);
         }
 
-        // ── Private helpers ───────────────────────────────────────────────────────
-
-        // Processes all waves of chain reactions that were scheduled by OnTileDestroyed calls,
-        // pausing _animConfig.ChainReactionWaveDelay seconds between each wave so the player
-        // can follow the chain visually.
         private async UniTask ProcessScheduledRemovals()
         {
             while (_scheduledRemovals.Count > 0)

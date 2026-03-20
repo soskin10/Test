@@ -27,9 +27,14 @@ namespace Project.Scripts.Services.Grid
                     t.Animator.SetTargetScale(_tileVisualSize);
                     t.gameObject.SetActive(true);
                 },
-                actionOnRelease: t => t.gameObject.SetActive(false),
+                actionOnRelease: t =>
+                {
+                    DG.Tweening.DOTween.Kill(t.transform);
+                    t.gameObject.SetActive(false);
+                },
                 actionOnDestroy: t => Object.Destroy(t.gameObject),
-                collectionCheck: false,
+                // TODO: disable collectionCheck after confirming that the hole bug is fixed
+                collectionCheck: true,
                 defaultCapacity: 36,
                 maxSize: 100
             );
