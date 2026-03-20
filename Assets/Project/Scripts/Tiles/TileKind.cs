@@ -4,11 +4,11 @@ namespace Project.Scripts.Tiles
     {
         None = 0,
 
-        Red = 10,
-        Blue = 11,
-        Green = 12,
-        Yellow = 13,
-        Purple = 14,
+        Fire = 10,
+        Water = 11,
+        Nature = 12,
+        Light = 13,
+        Void = 14,
 
         Bomb = 50,
         LineRuneH = 60,

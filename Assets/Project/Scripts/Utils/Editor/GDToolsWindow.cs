@@ -37,19 +37,7 @@ namespace Project.Scripts.Utils.Editor
                 BoardEditMode.SetActive(false == BoardEditMode.IsActive);
             GUI.backgroundColor = prev;
 
-            if (BoardEditMode.IsActive)
-            {
-                EditorGUILayout.Space(4);
-                EditorGUILayout.HelpBox("Edit mode active — click any tile to replace it.", MessageType.Warning);
-            }
-
             EditorGUI.EndDisabledGroup();
-
-            if (false == Application.isPlaying)
-            {
-                EditorGUILayout.Space(4);
-                EditorGUILayout.HelpBox("Enter Play Mode to use board editing.", MessageType.Info);
-            }
         }
 
         private void OnInspectorUpdate()

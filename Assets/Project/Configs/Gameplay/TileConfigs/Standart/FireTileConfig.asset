@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a6964c0f264d5a48a0193de5b3060fd, type: 3}
-  m_Name: GreenTileConfig
+  m_Name: FireTileConfig
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.TileConfig
-  _kind: 12
-  _sprite: {fileID: 21300000, guid: a43b62dfe33ec984c897b7c4df38291d, type: 3}
+  _kind: 10
+  _sprite: {fileID: 21300000, guid: 88d2879ea4648314d925eef9291eff8d, type: 3}
   _behaviour: {fileID: 11400000, guid: db5a8548d6cefc448812af07804ca8f2, type: 2}

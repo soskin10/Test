@@ -7,7 +7,7 @@ namespace Project.Scripts.Services.BoardEdit
     public static class BoardEditMode
     {
         public static bool IsActive { get; private set; }
-        public static TileKind SelectedKind { get; set; } = TileKind.Red;
+        public static TileKind SelectedKind { get; set; } = TileKind.Fire;
 
         public static event Action<bool> OnToggled;
 

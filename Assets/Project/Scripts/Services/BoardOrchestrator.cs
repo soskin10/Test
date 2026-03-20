@@ -135,7 +135,7 @@ namespace Project.Scripts.Services
                     if (matches.Count == 0)
                         await _grid.SwapTiles(request.To, request.From);
                     else
-                        await ProcessMatchChain(matches, waves, request.PivotPosition);
+                        await ProcessMatchChain(matches, waves, request.PivotPosition, true);
                 }
 
                 if (waves.Count > 0 || bombDamage > 0)
@@ -235,8 +235,12 @@ namespace Project.Scripts.Services
             await UniTask.WhenAll(_grid.ConsumeTile(posA), _grid.ConsumeTile(posB));
 
             var explosion = new HashSet<Vector2Int>(_grid.GetNeighboursInRadius(posA, doubleRadius));
-            foreach (var p in _grid.GetNeighboursInRadius(posB, doubleRadius))
+            var ps = _grid.GetNeighboursInRadius(posB, doubleRadius);
+            for (var i = 0; i < ps.Count; i++)
+            {
+                var p = ps[i];
                 explosion.Add(p);
+            }
 
             await _grid.ActivateTiles(new List<Vector2Int>(explosion));
         }
@@ -247,10 +251,19 @@ namespace Project.Scripts.Services
             await UniTask.WhenAll(_grid.ConsumeTile(posA), _grid.ConsumeTile(posB));
 
             var area = new HashSet<Vector2Int>(_grid.GetNeighboursInRadius(bombPos, bombRadius));
-            foreach (var p in _grid.GetAllInRow(bombPos.y))
+            var row = _grid.GetAllInRow(bombPos.y);
+            for (var i = 0; i < row.Count; i++)
+            {
+                var p = row[i];
                 area.Add(p);
-            foreach (var p in _grid.GetAllInColumn(bombPos.x))
+            }
+
+            var ps = _grid.GetAllInColumn(bombPos.x);
+            for (var i = 0; i < ps.Count; i++)
+            {
+                var p = ps[i];
                 area.Add(p);
+            }
 
             await _grid.ActivateTiles(new List<Vector2Int>(area));
         }
@@ -266,12 +279,12 @@ namespace Project.Scripts.Services
             await _gravity.SpawnNewTiles();
             var chainMatches = _matchFinder.FindMatches(_grid.GetGridState());
             if (chainMatches.Count > 0)
-                await ProcessMatchChain(chainMatches, waves, pivotPosition);
+                await ProcessMatchChain(chainMatches, waves, pivotPosition, false);
 
             await EnsureMovesAvailable();
         }
 
-        private async UniTask ProcessMatchChain(List<MatchResult> matches, List<WaveBreakdown> waves, Vector2Int pivotPosition)
+        private async UniTask ProcessMatchChain(List<MatchResult> matches, List<WaveBreakdown> waves, Vector2Int pivotPosition, bool spawnSpecials)
         {
             while (matches.Count > 0)
             {
@@ -279,7 +292,8 @@ namespace Project.Scripts.Services
                 _eventBus.Publish(new MatchPlayedEvent(cascadeLevel));
                 waves.Add(_damageCalculator.CalculateWave(matches, cascadeLevel));
 
-                var specialPlacements = _specialTileResolver.Resolve(matches, pivotPosition);
+                var specialPlacements = spawnSpecials && cascadeLevel == 1
+                    ? _specialTileResolver.Resolve(matches, pivotPosition) : null;
                 await _grid.RemoveMatches(matches, specialPlacements);
                 await _gravity.ApplyGravity();
                 await _gravity.SpawnNewTiles();
@@ -305,7 +319,7 @@ namespace Project.Scripts.Services
 
             var immediateMatches = _matchFinder.FindMatches(_grid.GetGridState());
             if (immediateMatches.Count > 0)
-                await ProcessMatchChain(immediateMatches, new List<WaveBreakdown>(), Vector2Int.zero);
+                await ProcessMatchChain(immediateMatches, new List<WaveBreakdown>(), Vector2Int.zero, false);
         }
 
         private static int CountActiveTiles(TileKind[,] state)

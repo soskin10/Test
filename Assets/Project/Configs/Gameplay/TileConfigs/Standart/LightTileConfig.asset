@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a6964c0f264d5a48a0193de5b3060fd, type: 3}
-  m_Name: RedTileConfig
+  m_Name: LightTileConfig
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.TileConfig
-  _kind: 10
-  _sprite: {fileID: 21300000, guid: 88d2879ea4648314d925eef9291eff8d, type: 3}
+  _kind: 13
+  _sprite: {fileID: 21300000, guid: 501e2ee39e01c854eb87cfecc669b7d0, type: 3}
   _behaviour: {fileID: 11400000, guid: db5a8548d6cefc448812af07804ca8f2, type: 2}
