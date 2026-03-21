@@ -1,15 +1,21 @@
 #if UNITY_EDITOR
 using System;
 using System.Reflection;
+using Project.Scripts.Configs;
+using Project.Scripts.Constants;
 using Project.Scripts.Services.BoardEdit;
 using Project.Scripts.Tiles;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Project.Scripts.Utils.Editor
 {
     public class GDToolsWindow : EditorWindow
     {
+        private BoardConfig _boardConfig;
+
+
         [MenuItem("Tools/GD Tools")]
         public static void Open()
         {
@@ -22,9 +28,29 @@ namespace Project.Scripts.Utils.Editor
             EditorGUILayout.LabelField("Board Edit", EditorStyles.boldLabel);
             EditorGUILayout.Space(4);
 
-            EditorGUI.BeginDisabledGroup(false == Application.isPlaying);
+            var activeScene = EditorSceneManager.GetActiveScene();
+            var isGameplayActive = Application.isPlaying && activeScene.name == SceneNames.GamePlay;
+            EditorGUI.BeginDisabledGroup(false == isGameplayActive);
 
             EditorGUILayout.BeginHorizontal();
+
+            var size = EditorGUIUtility.singleLineHeight;
+            var sprite = GetSpriteForKind(BoardEditMode.SelectedKind);
+            var iconRect = GUILayoutUtility.GetRect(size, size, GUILayout.Width(size), GUILayout.Height(size));
+            if (sprite)
+            {
+                var uv = new Rect(
+                    sprite.rect.x / sprite.texture.width,
+                    sprite.rect.y / sprite.texture.height,
+                    sprite.rect.width / sprite.texture.width,
+                    sprite.rect.height / sprite.texture.height);
+                var prevColor = GUI.color;
+                if (false == GUI.enabled)
+                    GUI.color = new Color(1f, 1f, 1f, 0.5f);
+                GUI.DrawTextureWithTexCoords(iconRect, sprite.texture, uv);
+                GUI.color = prevColor;
+            }
+
             BoardEditMode.SelectedKind = (TileKind)EditorGUILayout.EnumPopup(BoardEditMode.SelectedKind);
             EditorGUILayout.EndHorizontal();
 
@@ -44,13 +70,39 @@ namespace Project.Scripts.Utils.Editor
             EditorGUILayout.Space(8);
             EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
             EditorGUILayout.Space(4);
-            if (GUILayout.Button("Copy Console", GUILayout.Height(28)))
+            if (GUILayout.Button("Copy Console"))
                 CopyConsole();
         }
 
         private void OnInspectorUpdate()
         {
             Repaint();
+        }
+
+
+        private Sprite GetSpriteForKind(TileKind kind)
+        {
+            if (!_boardConfig)
+            {
+                var guids = AssetDatabase.FindAssets("t:BoardConfig");
+                if (guids.Length == 0)
+                    return null;
+                
+                _boardConfig = AssetDatabase.LoadAssetAtPath<BoardConfig>(AssetDatabase.GUIDToAssetPath(guids[0]));
+            }
+
+            if (!_boardConfig)
+                return null;
+
+            for (var i = 0; i < _boardConfig.RegularTiles.Length; i++)
+                if (_boardConfig.RegularTiles[i].Kind == kind)
+                    return _boardConfig.RegularTiles[i].Sprite;
+
+            for (var i = 0; i < _boardConfig.SpecialTiles.Length; i++)
+                if (_boardConfig.SpecialTiles[i].Kind == kind)
+                    return _boardConfig.SpecialTiles[i].Sprite;
+
+            return null;
         }
 
 
