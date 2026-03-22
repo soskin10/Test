@@ -8,10 +8,10 @@ namespace Project.Scripts.Services.Grid
     {
         private readonly IGridManager _grid;
         private readonly IMatchFinder _matchFinder;
-        private readonly BoardConfig _config;
+        private readonly LevelConfig _config;
 
 
-        public MoveChecker(IGridManager grid, IMatchFinder matchFinder, BoardConfig config)
+        public MoveChecker(IGridManager grid, IMatchFinder matchFinder, LevelConfig config)
         {
             _grid = grid;
             _matchFinder = matchFinder;
@@ -25,7 +25,7 @@ namespace Project.Scripts.Services.Grid
                 for (var y = 0; y < _config.Height; y++)
                 {
                     var tileA = _grid.GetTile(new Vector2Int(x, y));
-                    if (!tileA) 
+                    if (!tileA)
                         continue;
 
                     if (x + 1 < _config.Width)

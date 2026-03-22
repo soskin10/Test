@@ -9,10 +9,10 @@ namespace Project.Scripts.Services.Grid
     {
         private readonly IGridManager _grid;
         private readonly TilePool _pool;
-        private readonly BoardConfig _config;
+        private readonly LevelConfig _config;
 
 
-        public GravityHandler(IGridManager grid, TilePool pool, BoardConfig config)
+        public GravityHandler(IGridManager grid, TilePool pool, LevelConfig config)
         {
             _grid = grid;
             _pool = pool;

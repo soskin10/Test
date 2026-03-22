@@ -90,6 +90,7 @@ namespace Project.Scripts.Services
 
                 var waves = new List<WaveBreakdown>();
                 var bombDamage = 0;
+                var moveUsed = false;
 
                 if (fromIsSpecial && toIsSpecial)
                 {
@@ -101,6 +102,7 @@ namespace Project.Scripts.Services
                     bombDamage = _damageCalculator.CalculateBombDamage(tilesBefore - CountActiveTiles(_grid.GetGridState()));
 
                     await RunPostActivationFlow(waves, request.PivotPosition);
+                    moveUsed = true;
                 }
                 else if (fromIsSpecial || toIsSpecial)
                 {
@@ -128,6 +130,7 @@ namespace Project.Scripts.Services
                     bombDamage = _damageCalculator.CalculateBombDamage(tilesBefore - CountActiveTiles(_grid.GetGridState()));
 
                     await RunPostActivationFlow(waves, request.PivotPosition);
+                    moveUsed = true;
                 }
                 else
                 {
@@ -136,7 +139,10 @@ namespace Project.Scripts.Services
                     if (matches.Count == 0)
                         await _grid.SwapTiles(request.To, request.From);
                     else
+                    {
                         await ProcessMatchChain(matches, waves, request.PivotPosition, true);
+                        moveUsed = true;
+                    }
                 }
 
                 if (waves.Count > 0 || bombDamage > 0)
@@ -145,6 +151,9 @@ namespace Project.Scripts.Services
                     _eventBus.Publish(new DamageDealtEvent(breakdown.Total));
                     Debug.Log(breakdown.ToLogString());
                 }
+
+                if (moveUsed)
+                    _eventBus.Publish(new MoveUsedEvent());
             }
             finally
             {

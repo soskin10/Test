@@ -9,9 +9,14 @@ namespace Project.Scripts.Services
     public class SpecialTileResolver
     {
         private readonly SpecialTileConfig _config;
+        private readonly LevelConfig _levelConfig;
 
 
-        public SpecialTileResolver(SpecialTileConfig config) => _config = config;
+        public SpecialTileResolver(SpecialTileConfig config, LevelConfig levelConfig)
+        {
+            _config = config;
+            _levelConfig = levelConfig;
+        }
 
 
         public Dictionary<Vector2Int, SpecialTileSpawnData> Resolve(List<MatchResult> matches, Vector2Int pivotPosition)
@@ -27,6 +32,10 @@ namespace Project.Scripts.Services
                 if (null == entry)
                     continue;
 
+                var tileConfig = FindTileConfig(entry.TileKind);
+                if (null == tileConfig)
+                    continue;
+
                 var spawnPos = entry.SpawnPosition == SpecialTileSpawnPosition.MatchCenter
                     ? match.Center
                     : pivotPosition;
@@ -34,24 +43,33 @@ namespace Project.Scripts.Services
                 if (result.ContainsKey(spawnPos))
                     continue;
 
-                var payloadKind = entry.TileToSpawn.Kind == TileKind.Storm
+                var payloadKind = entry.TileKind == TileKind.Storm
                     ? TileKind.None
                     : match.TileKind;
 
-                result[spawnPos] = new SpecialTileSpawnData(entry.TileToSpawn, payloadKind);
+                result[spawnPos] = new SpecialTileSpawnData(tileConfig, payloadKind);
             }
 
             return result;
         }
 
 
+        private TileConfig FindTileConfig(TileKind kind)
+        {
+            if (_levelConfig.SpecialTiles == null)
+                return null;
+
+            for (var i = 0; i < _levelConfig.SpecialTiles.Length; i++)
+                if (_levelConfig.SpecialTiles[i].Kind == kind)
+                    return _levelConfig.SpecialTiles[i];
+
+            return null;
+        }
+
         private static SpecialTileEntry FindEntry(MatchResult match, SpecialTileEntry[] rules)
         {
             for (var i = 0; i < rules.Length; i++)
             {
-                if (false == rules[i].TileToSpawn)
-                    continue;
-
                 if (MatchesCondition(rules[i].Condition, match))
                     return rules[i];
             }

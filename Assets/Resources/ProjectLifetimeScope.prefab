@@ -352,6 +352,7 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   _mainConfig: {fileID: 11400000, guid: f4f002090b570aa47b7bc97d8a11c0d8, type: 2}
+  _startLevelIndex: 0
 --- !u!1 &8156858395481683172
 GameObject:
   m_ObjectHideFlags: 0

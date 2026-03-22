@@ -142,16 +142,11 @@ namespace Project.Scripts.Services.UISystem
         {
             var viewType = typeof(TView);
 
-            if (false == _activeViews.TryGetValue(viewType, out var view))
-            {
-                Debug.LogWarning($"View {viewType.Name} is not active");
+            if (false == _activeViews.Remove(viewType, out var view))
                 return;
-            }
 
-            view.Close();
-            _activeViews.Remove(viewType);
-
-            Debug.Log($"View {viewType.Name} closed");
+            if (view is MonoBehaviour mono && mono)
+                view.Close();
         }
 
         public TView GetCurrent<TView>() where TView : MonoBehaviour, IView
@@ -171,11 +166,11 @@ namespace Project.Scripts.Services.UISystem
             for (var i = 0; i < types.Count; i++)
             {
                 var view = _activeViews[types[i]];
-                view.Close();
+                if (view is MonoBehaviour mono && mono)
+                    view.Close();
             }
 
             _activeViews.Clear();
-            Debug.Log("All views closed");
         }
 
 

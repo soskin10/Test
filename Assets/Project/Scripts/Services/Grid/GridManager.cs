@@ -9,7 +9,7 @@ namespace Project.Scripts.Services.Grid
 {
     public class GridManager : IGridManager
     {
-        private readonly BoardConfig _boardConfig;
+        private readonly LevelConfig _levelConfig;
         private readonly AnimationConfig _animConfig;
         private readonly TilePool _pool;
         private readonly Tile[,] _grid;
@@ -18,13 +18,13 @@ namespace Project.Scripts.Services.Grid
         private Vector3 _origin;
 
 
-        public GridManager(BoardConfig boardConfig, AnimationConfig animConfig, TilePool pool, float cellSize)
+        public GridManager(LevelConfig levelConfig, AnimationConfig animConfig, TilePool pool, float cellSize)
         {
-            _boardConfig = boardConfig;
+            _levelConfig = levelConfig;
             _animConfig = animConfig;
             _pool = pool;
             _cellSize = cellSize;
-            _grid = new Tile[boardConfig.Width, boardConfig.Height];
+            _grid = new Tile[levelConfig.Width, levelConfig.Height];
         }
 
         public void SetOrigin(Vector3 origin)
@@ -49,7 +49,7 @@ namespace Project.Scripts.Services.Grid
 
         public bool IsValidPosition(Vector2Int pos)
         {
-            return pos.x >= 0 && pos.x < _boardConfig.Width && pos.y >= 0 && pos.y < _boardConfig.Height;
+            return pos.x >= 0 && pos.x < _levelConfig.Width && pos.y >= 0 && pos.y < _levelConfig.Height;
         }
 
         public Vector3 GridToWorld(Vector2Int pos)
@@ -69,9 +69,9 @@ namespace Project.Scripts.Services.Grid
 
         public TileKind[,] GetGridState()
         {
-            var state = new TileKind[_boardConfig.Width, _boardConfig.Height];
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            var state = new TileKind[_levelConfig.Width, _levelConfig.Height];
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                     state[x, y] = _grid[x, y] ? _grid[x, y].Kind : TileKind.None;
 
             return state;
@@ -79,7 +79,7 @@ namespace Project.Scripts.Services.Grid
 
         public TileConfig ResolveRegularTile()
         {
-            return _boardConfig.RegularTiles[UnityEngine.Random.Range(0, _boardConfig.RegularTiles.Length)];
+            return _levelConfig.RegularTiles[UnityEngine.Random.Range(0, _levelConfig.RegularTiles.Length)];
         }
 
         public void ScheduleRemove(List<Vector2Int> positions)
@@ -107,8 +107,8 @@ namespace Project.Scripts.Services.Grid
 
         public List<Vector2Int> GetAllInRow(int y)
         {
-            var result = new List<Vector2Int>(_boardConfig.Width);
-            for (var x = 0; x < _boardConfig.Width; x++)
+            var result = new List<Vector2Int>(_levelConfig.Width);
+            for (var x = 0; x < _levelConfig.Width; x++)
                 result.Add(new Vector2Int(x, y));
 
             return result;
@@ -116,8 +116,8 @@ namespace Project.Scripts.Services.Grid
 
         public List<Vector2Int> GetAllInColumn(int x)
         {
-            var result = new List<Vector2Int>(_boardConfig.Height);
-            for (var y = 0; y < _boardConfig.Height; y++)
+            var result = new List<Vector2Int>(_levelConfig.Height);
+            for (var y = 0; y < _levelConfig.Height; y++)
                 result.Add(new Vector2Int(x, y));
 
             return result;
@@ -126,8 +126,8 @@ namespace Project.Scripts.Services.Grid
         public List<Vector2Int> GetAllOfKind(TileKind kind)
         {
             var result = new List<Vector2Int>();
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                     if (_grid[x, y] && _grid[x, y].Kind == kind)
                         result.Add(new Vector2Int(x, y));
 
@@ -137,8 +137,8 @@ namespace Project.Scripts.Services.Grid
         public List<Vector2Int> GetAllOccupied()
         {
             var result = new List<Vector2Int>();
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                     if (_grid[x, y])
                         result.Add(new Vector2Int(x, y));
 
@@ -148,8 +148,8 @@ namespace Project.Scripts.Services.Grid
         public TileKind GetMostCommonColor()
         {
             var counts = new Dictionary<TileKind, int>();
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                 {
                     var tile = _grid[x, y];
                     if (false == tile)
@@ -179,11 +179,11 @@ namespace Project.Scripts.Services.Grid
 
         public async UniTask PopulateGrid()
         {
-            var kindCache = new TileKind[_boardConfig.Width, _boardConfig.Height];
-            var tasks = new UniTask[_boardConfig.Width * _boardConfig.Height];
+            var kindCache = new TileKind[_levelConfig.Width, _levelConfig.Height];
+            var tasks = new UniTask[_levelConfig.Width * _levelConfig.Height];
             var idx = 0;
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                 {
                     var pos = new Vector2Int(x, y);
                     var tileConfig = GetNoMatchConfig(x, y, kindCache);
@@ -261,8 +261,8 @@ namespace Project.Scripts.Services.Grid
         {
             var positions = new List<Vector2Int>();
             var configs = new List<TileConfig>();
-            for (var x = 0; x < _boardConfig.Width; x++)
-                for (var y = 0; y < _boardConfig.Height; y++)
+            for (var x = 0; x < _levelConfig.Width; x++)
+                for (var y = 0; y < _levelConfig.Height; y++)
                 {
                     var tile = _grid[x, y];
                     if (tile)
@@ -278,7 +278,7 @@ namespace Project.Scripts.Services.Grid
                 (configs[i], configs[j]) = (configs[j], configs[i]);
             }
 
-            var assignedKinds = new TileKind[_boardConfig.Width, _boardConfig.Height];
+            var assignedKinds = new TileKind[_levelConfig.Width, _levelConfig.Height];
             for (var i = 0; i < positions.Count; i++)
             {
                 var pos = positions[i];
@@ -306,11 +306,11 @@ namespace Project.Scripts.Services.Grid
 
         public void ForceInjectMove()
         {
-            if (_boardConfig.RegularTiles.Length < 2 || _boardConfig.Width < 4)
+            if (_levelConfig.RegularTiles.Length < 2 || _levelConfig.Width < 4)
                 return;
 
-            var configT = _boardConfig.RegularTiles[0];
-            var configX = _boardConfig.RegularTiles[1];
+            var configT = _levelConfig.RegularTiles[0];
+            var configX = _levelConfig.RegularTiles[1];
 
             ReInitTileAt(0, 0, configT);
             ReInitTileAt(1, 0, configX);
@@ -334,14 +334,14 @@ namespace Project.Scripts.Services.Grid
 
         private TileConfig FindConfigForKind(TileKind kind)
         {
-            for (var i = 0; i < _boardConfig.RegularTiles.Length; i++)
-                if (_boardConfig.RegularTiles[i].Kind == kind)
-                    return _boardConfig.RegularTiles[i];
+            for (var i = 0; i < _levelConfig.RegularTiles.Length; i++)
+                if (_levelConfig.RegularTiles[i].Kind == kind)
+                    return _levelConfig.RegularTiles[i];
 
-            if (_boardConfig.SpecialTiles != null)
-                for (var i = 0; i < _boardConfig.SpecialTiles.Length; i++)
-                    if (_boardConfig.SpecialTiles[i].Kind == kind)
-                        return _boardConfig.SpecialTiles[i];
+            if (_levelConfig.SpecialTiles != null)
+                for (var i = 0; i < _levelConfig.SpecialTiles.Length; i++)
+                    if (_levelConfig.SpecialTiles[i].Kind == kind)
+                        return _levelConfig.SpecialTiles[i];
 
             return null;
         }
@@ -447,12 +447,12 @@ namespace Project.Scripts.Services.Grid
 
             for (var attempt = 0; attempt < 10; attempt++)
             {
-                var config = _boardConfig.RegularTiles[UnityEngine.Random.Range(0, _boardConfig.RegularTiles.Length)];
+                var config = _levelConfig.RegularTiles[UnityEngine.Random.Range(0, _levelConfig.RegularTiles.Length)];
                 if (false == forbidden.Contains(config.Kind))
                     return config;
             }
 
-            return _boardConfig.RegularTiles[0];
+            return _levelConfig.RegularTiles[0];
         }
     }
 }

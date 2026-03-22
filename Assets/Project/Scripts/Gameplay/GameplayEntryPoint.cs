@@ -4,6 +4,7 @@ using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Services;
 using Project.Scripts.Services.Audio;
 using Project.Scripts.Services.Audio.AudioSystem;
+using Project.Scripts.Services.Combat;
 using Project.Scripts.Services.Damage;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.Grid;
@@ -32,6 +33,7 @@ namespace Project.Scripts.Gameplay
         private EventBus _eventBus;
         private AudioService _audioService;
         private BoardConfig _boardConfig;
+        private LevelConfig _levelConfig;
         private AnimationConfig _animConfig;
         private InputConfig _inputConfig;
         private IDamageCalculator _damageCalculator;
@@ -41,19 +43,23 @@ namespace Project.Scripts.Gameplay
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
         private GameStateService _gameStateService;
+        private MoveCounterService _moveCounterService;
+        private EnemyStateService _enemyStateService;
         private GameAudioController _gameAudioController;
 
-        
+
         private void Start()
         {
             InitAsync().Forget();
         }
-        
+
         private void OnDestroy()
         {
             _uiService?.Close<GameplayView>();
             _swapHandler?.Dispose();
             _inputService?.Dispose();
+            _moveCounterService?.Dispose();
+            _enemyStateService?.Dispose();
             _gameStateService?.Dispose();
         }
 
@@ -63,6 +69,7 @@ namespace Project.Scripts.Gameplay
             EventBus eventBus,
             AudioService audioService,
             BoardConfig boardConfig,
+            LevelConfig levelConfig,
             AnimationConfig animConfig,
             InputConfig inputConfig,
             IDamageCalculator damageCalculator,
@@ -73,6 +80,7 @@ namespace Project.Scripts.Gameplay
             _eventBus = eventBus;
             _audioService = audioService;
             _boardConfig = boardConfig;
+            _levelConfig = levelConfig;
             _animConfig = animConfig;
             _inputConfig = inputConfig;
             _damageCalculator = damageCalculator;
@@ -87,25 +95,30 @@ namespace Project.Scripts.Gameplay
             _uiService.RegisterView<GameplayView>(_gameplayViewPrefab, UILayer.Main);
             await _uiService.Show<GameplayView, GameplayViewModel>(_gameplayViewModel);
 
-            var cellSize = ComputeCellSize(_boardConfig);
-            var pool = new TilePool(_boardConfig.TilePrefab, _tileContainer, _animConfig, cellSize, _boardConfig.TileScale);
-            var matchFinder = new MatchFinder(_boardConfig.MinMatchLength);
-            var gridManager = new GridManager(_boardConfig, _animConfig, pool, cellSize);
-            gridManager.SetOrigin(ComputeGridOrigin(_boardConfig, cellSize));
+            var cellSize = ComputeCellSize();
+            var boardCenter = ComputeBoardCenter(cellSize);
+            _boardView.transform.position = boardCenter;
 
-            _boardView.Setup(_boardConfig.Width, _boardConfig.Height, cellSize,
+            var pool = new TilePool(_boardConfig.TilePrefab, _tileContainer, _animConfig, cellSize, _boardConfig.TileScale);
+            var matchFinder = new MatchFinder(_levelConfig.MinMatchLength);
+            var gridManager = new GridManager(_levelConfig, _animConfig, pool, cellSize);
+            gridManager.SetOrigin(ComputeGridOrigin(boardCenter, cellSize));
+
+            _boardView.Setup(_levelConfig.Width, _levelConfig.Height, cellSize,
                 _boardConfig.FramePadding, _boardConfig.MaskTopPadding);
 
-            var gravityHandler = new GravityHandler(gridManager, pool, _boardConfig);
+            var gravityHandler = new GravityHandler(gridManager, pool, _levelConfig);
 
             _inputService = new InputService(_inputConfig);
             _swapHandler = new SwapInputHandler(_inputService, gridManager, _inputConfig.WorldDragThreshold);
 
-            var moveChecker = new MoveChecker(gridManager, matchFinder, _boardConfig);
-            var specialTileResolver = new SpecialTileResolver(_specialTileConfig);
+            var moveChecker = new MoveChecker(gridManager, matchFinder, _levelConfig);
+            var specialTileResolver = new SpecialTileResolver(_specialTileConfig, _levelConfig);
             var swapComboResolver = new SwapComboResolver();
 
-            _gameStateService = new GameStateService();
+            _moveCounterService = new MoveCounterService(_eventBus, _levelConfig);
+            _enemyStateService = new EnemyStateService(_eventBus, _levelConfig);
+            _gameStateService = new GameStateService(_eventBus);
 
             var orchestrator = new BoardOrchestrator(
                 _eventBus,
@@ -124,7 +137,7 @@ namespace Project.Scripts.Gameplay
 
 #if UNITY_EDITOR
             var editHandler = gameObject.AddComponent<BoardEditClickHandler>();
-            editHandler.Init(gridManager, _boardConfig, cellSize);
+            editHandler.Init(gridManager, _levelConfig, cellSize);
 #endif
 
             await _inputService.InitAsync();
@@ -133,24 +146,40 @@ namespace Project.Scripts.Gameplay
             await orchestrator.StartGame();
         }
 
-        private float ComputeCellSize(BoardConfig config)
+        private float ComputeCellSize()
         {
             var cam = Camera.main;
             var camHeight = cam.orthographicSize * 2f;
             var camWidth = camHeight * cam.aspect;
 
-            var cellSizeByWidth = camWidth * (1f - config.BoardPaddingPercent) / config.Width;
-            var cellSizeByHeight = camHeight * (1f - config.UIReservedHeightPercent) / config.Height;
+            var cellSizeByWidth = camWidth * (1f - _boardConfig.BoardPaddingPercent) / _levelConfig.Width;
+            var cellSizeByHeight = camHeight * (1f - _boardConfig.UIReservedHeightPercent) / _levelConfig.Height;
 
             return Mathf.Min(cellSizeByWidth, cellSizeByHeight);
         }
 
-        private Vector3 ComputeGridOrigin(BoardConfig config, float cellSize)
+        private Vector3 ComputeBoardCenter(float cellSize)
         {
-            var offsetX = -(config.Width - 1) * cellSize * 0.5f;
-            var offsetY = -(config.Height - 1) * cellSize * 0.5f;
+            var cam = Camera.main;
+            var camHeight = cam.orthographicSize * 2f;
+            var camBottomY = cam.transform.position.y - cam.orthographicSize;
+            var boardHeight = _levelConfig.Height * cellSize;
+            var bottomPadding = camHeight * _boardConfig.BoardBottomPaddingPercent;
 
-            return transform.position + new Vector3(offsetX, offsetY, 0f);
+            return new Vector3(
+                cam.transform.position.x,
+                camBottomY + bottomPadding + boardHeight * 0.5f,
+                0f
+            );
+        }
+
+        private Vector3 ComputeGridOrigin(Vector3 boardCenter, float cellSize)
+        {
+            return boardCenter + new Vector3(
+                -(_levelConfig.Width - 1) * cellSize * 0.5f,
+                -(_levelConfig.Height - 1) * cellSize * 0.5f,
+                0f
+            );
         }
     }
 }

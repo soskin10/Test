@@ -10,16 +10,16 @@ namespace Project.Scripts.Services.BoardEdit
     public class BoardEditClickHandler : MonoBehaviour
     {
         private IGridManager _grid;
-        private BoardConfig _boardConfig;
+        private LevelConfig _levelConfig;
         private float _cellSize;
         private GameObject _overlayGo;
         private LineRenderer _overlay;
 
 
-        public void Init(IGridManager grid, BoardConfig boardConfig, float cellSize)
+        public void Init(IGridManager grid, LevelConfig levelConfig, float cellSize)
         {
             _grid = grid;
-            _boardConfig = boardConfig;
+            _levelConfig = levelConfig;
             _cellSize = cellSize;
             BoardEditMode.OnToggled += OnEditModeToggled;
         }
@@ -72,9 +72,9 @@ namespace Project.Scripts.Services.BoardEdit
         {
             var half = _cellSize * 0.5f;
             var bl = _grid.GridToWorld(new Vector2Int(0, 0)) + new Vector3(-half, -half, 0f);
-            var br = _grid.GridToWorld(new Vector2Int(_boardConfig.Width - 1, 0)) + new Vector3( half, -half, 0f);
-            var tr = _grid.GridToWorld(new Vector2Int(_boardConfig.Width - 1, _boardConfig.Height - 1)) + new Vector3( half,  half, 0f);
-            var tl = _grid.GridToWorld(new Vector2Int(0, _boardConfig.Height - 1)) + new Vector3(-half,  half, 0f);
+            var br = _grid.GridToWorld(new Vector2Int(_levelConfig.Width - 1, 0)) + new Vector3( half, -half, 0f);
+            var tr = _grid.GridToWorld(new Vector2Int(_levelConfig.Width - 1, _levelConfig.Height - 1)) + new Vector3( half,  half, 0f);
+            var tl = _grid.GridToWorld(new Vector2Int(0, _levelConfig.Height - 1)) + new Vector3(-half,  half, 0f);
 
             _overlayGo = new GameObject("BoardEditOverlay");
             _overlay = _overlayGo.AddComponent<LineRenderer>();

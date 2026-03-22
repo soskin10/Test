@@ -13,7 +13,7 @@ namespace Project.Scripts.Utils.Editor
 {
     public class GDToolsWindow : EditorWindow
     {
-        private BoardConfig _boardConfig;
+        private LevelDatabase _levelDatabase;
 
 
         [MenuItem("Tools/GD Tools")]
@@ -82,25 +82,28 @@ namespace Project.Scripts.Utils.Editor
 
         private Sprite GetSpriteForKind(TileKind kind)
         {
-            if (!_boardConfig)
+            if (!_levelDatabase)
             {
-                var guids = AssetDatabase.FindAssets("t:BoardConfig");
+                var guids = AssetDatabase.FindAssets("t:LevelDatabase");
                 if (guids.Length == 0)
                     return null;
-                
-                _boardConfig = AssetDatabase.LoadAssetAtPath<BoardConfig>(AssetDatabase.GUIDToAssetPath(guids[0]));
+
+                _levelDatabase = AssetDatabase.LoadAssetAtPath<LevelDatabase>(AssetDatabase.GUIDToAssetPath(guids[0]));
             }
 
-            if (!_boardConfig)
+            if (!_levelDatabase || _levelDatabase.Levels == null || _levelDatabase.Levels.Length == 0)
                 return null;
 
-            for (var i = 0; i < _boardConfig.RegularTiles.Length; i++)
-                if (_boardConfig.RegularTiles[i].Kind == kind)
-                    return _boardConfig.RegularTiles[i].Sprite;
+            var levelConfig = _levelDatabase.Levels[0];
 
-            for (var i = 0; i < _boardConfig.SpecialTiles.Length; i++)
-                if (_boardConfig.SpecialTiles[i].Kind == kind)
-                    return _boardConfig.SpecialTiles[i].Sprite;
+            for (var i = 0; i < levelConfig.RegularTiles.Length; i++)
+                if (levelConfig.RegularTiles[i].Kind == kind)
+                    return levelConfig.RegularTiles[i].Sprite;
+
+            if (levelConfig.SpecialTiles != null)
+                for (var i = 0; i < levelConfig.SpecialTiles.Length; i++)
+                    if (levelConfig.SpecialTiles[i].Kind == kind)
+                        return levelConfig.SpecialTiles[i].Sprite;
 
             return null;
         }

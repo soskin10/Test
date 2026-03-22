@@ -19,3 +19,4 @@ MonoBehaviour:
   _animationConfig: {fileID: 11400000, guid: cbd98e1f82be3af488e15870bc436ae1, type: 2}
   _damageConfig: {fileID: 11400000, guid: 0956d6ae0c68a0f4eb88015db2973137, type: 2}
   _specialTileConfig: {fileID: 11400000, guid: bf43509404b084149a8b2978f4619c2d, type: 2}
+  _levelDatabase: {fileID: 11400000, guid: 528394c8e2714e3489a9a33180a6de4c, type: 2}
