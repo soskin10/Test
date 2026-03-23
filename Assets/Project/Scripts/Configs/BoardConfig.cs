@@ -24,6 +24,9 @@ namespace Project.Scripts.Configs
         [Tooltip("Fraction of screen height between the bottom edge and the first tile row")]
         [SerializeField] [Range(0f, 0.3f)] private float _boardBottomPaddingPercent = 0.05f;
 
+        [Tooltip("Minimum number of tiles in a row/column to count as a match")]
+        [SerializeField] [Range(2, 6)] private int _minMatchLength = 3;
+
         [Tooltip("Prefab used to instantiate each tile")]
         [SerializeField] private Tile _tilePrefab;
 
@@ -34,6 +37,7 @@ namespace Project.Scripts.Configs
         public float FramePadding => _framePadding;
         public float MaskTopPadding => _maskTopPadding;
         public float BoardBottomPaddingPercent => _boardBottomPaddingPercent;
+        public int MinMatchLength => _minMatchLength;
         public Tile TilePrefab => _tilePrefab;
     }
 }

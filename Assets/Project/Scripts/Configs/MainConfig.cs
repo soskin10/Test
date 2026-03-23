@@ -14,6 +14,7 @@ namespace Project.Scripts.Configs
         [SerializeField] private DamageConfig _damageConfig;
         [SerializeField] private SpecialTileConfig _specialTileConfig;
         [SerializeField] private LevelDatabase _levelDatabase;
+        [SerializeField] private UIConfig _uiConfig;
 
 
         public AudioMusicConfig AudioMusicConfig => _audioMusicConfig;
@@ -24,5 +25,6 @@ namespace Project.Scripts.Configs
         public DamageConfig DamageConfig => _damageConfig;
         public SpecialTileConfig SpecialTileConfig => _specialTileConfig;
         public LevelDatabase LevelDatabase => _levelDatabase;
+        public UIConfig UIConfig => _uiConfig;
     }
 }

@@ -1,4 +1,5 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Services;
 using Project.Scripts.Services.Audio.AudioSystem;
 using Project.Scripts.Services.Damage;
 using Project.Scripts.Services.EventBusSystem;
@@ -12,7 +13,6 @@ namespace Project.Scripts.DI
     public class ProjectLifetimeScope : LifetimeScope
     {
         [SerializeField] private MainConfig _mainConfig;
-        [SerializeField] private int _startLevelIndex = 0;
 
 
         protected override void Configure(IContainerBuilder builder)
@@ -25,7 +25,7 @@ namespace Project.Scripts.DI
             builder.RegisterInstance(_mainConfig.AudioSFXConfig);
             builder.RegisterInstance(_mainConfig.SpecialTileConfig);
             builder.RegisterInstance(_mainConfig.LevelDatabase);
-            builder.RegisterInstance(_mainConfig.LevelDatabase.Levels[_startLevelIndex]);
+            builder.RegisterInstance(_mainConfig.UIConfig);
 
             builder.Register<IDamageCalculator, DamageCalculator>(Lifetime.Singleton);
 

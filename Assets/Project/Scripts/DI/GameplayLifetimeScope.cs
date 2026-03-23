@@ -1,5 +1,8 @@
+using Project.Scripts.Configs;
 using Project.Scripts.Gameplay;
 using Project.Scripts.Gameplay.UI;
+using Project.Scripts.Services;
+using Project.Scripts.Services.Combat;
 using VContainer;
 using VContainer.Unity;
 
@@ -9,8 +12,18 @@ namespace Project.Scripts.DI
     {
         protected override void Configure(IContainerBuilder builder)
         {
+            var levelDatabase = Parent.Container.Resolve<LevelDatabase>();
+            builder.RegisterInstance(levelDatabase.GetById(LevelProgressionService.CurrentLevelId));
+
             builder.RegisterComponentInHierarchy<GameplayEntryPoint>();
+
+            builder.Register<IGameStateService, GameStateService>(Lifetime.Singleton);
+            builder.Register<IMoveCounterService, MoveCounterService>(Lifetime.Singleton);
+            builder.Register<IEnemyStateService, EnemyStateService>(Lifetime.Singleton);
+            builder.Register<ILevelProgressionService, LevelProgressionService>(Lifetime.Singleton);
+
             builder.Register<GameplayViewModel>(Lifetime.Singleton);
+            builder.Register<GameResultPresenter>(Lifetime.Singleton);
         }
     }
 }

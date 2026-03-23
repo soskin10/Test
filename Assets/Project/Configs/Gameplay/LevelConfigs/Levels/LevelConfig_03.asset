@@ -10,10 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6fc6a29fd7f1e5d4e92bc3d0e8776808, type: 3}
-  m_Name: LevelConfig_01
+  m_Name: LevelConfig_03
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.LevelConfig
-  _width: 6
-  _height: 6
+  _levelId: 3
+  _width: 8
+  _height: 8
   _regularTiles:
   - {fileID: 11400000, guid: 45e3651fed728ad4487420bf9819b91a, type: 2}
   - {fileID: 11400000, guid: 1119a0ba92910f542a294d24513a6914, type: 2}
@@ -26,5 +27,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 438f2a2ac5c21944a9de839fc3622991, type: 2}
   - {fileID: 11400000, guid: dc1cae93b0911fd4facc660a6f3387b9, type: 2}
   _moveLimit: 15
-  _enemyHP: 200
+  _enemyHP: 400
   _goalType: 0

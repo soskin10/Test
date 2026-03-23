@@ -16,7 +16,7 @@ namespace Project.Scripts.Bootstrap
         [Tooltip("Delay in seconds before the progress bar appears")]
         [SerializeField] private float _initialDelaySeconds = 0.1f;
 
-        [Tooltip("Delay in seconds between progress bar fill and scene transition")]
+        [Tooltip("Delay in seconds after scene is fully loaded before activating it")]
         [SerializeField] private float _finalLoadingDelaySeconds = 0.3f;
 
 
@@ -34,7 +34,7 @@ namespace Project.Scripts.Bootstrap
                 Debug.LogError($"Critical error during bootstrap: {ex}");
             }
         }
-        
+
         private void OnDestroy()
         {
             _progressSubject?.Dispose();
@@ -50,12 +50,28 @@ namespace Project.Scripts.Bootstrap
             _loadingScreen.SubscribeToProgress(_progressSubject);
 
             _progressSubject.OnNext(0f);
-            await UniTask.Delay((int)(_finalLoadingDelaySeconds * 1000));
+
+            var asyncOp = SceneManager.LoadSceneAsync(SceneNames.GamePlay, LoadSceneMode.Single);
+            if (asyncOp == null)
+            {
+                Debug.LogError($"Failed to load scene: {SceneNames.GamePlay}. Make sure it is added to Build Settings.");
+                return;
+            }
+
+            asyncOp.allowSceneActivation = false;
+
+            while (asyncOp.progress < 0.9f)
+            {
+                _progressSubject.OnNext(asyncOp.progress / 0.9f);
+                await UniTask.Yield();
+            }
+
             _progressSubject.OnNext(1f);
+            await UniTask.Delay((int)(_finalLoadingDelaySeconds * 1000));
 
             _loadingScreen.Hide();
 
-            SceneManager.LoadScene(SceneNames.GamePlay, LoadSceneMode.Single);
+            asyncOp.allowSceneActivation = true;
         }
     }
 }

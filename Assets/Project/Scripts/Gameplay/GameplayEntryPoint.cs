@@ -4,7 +4,6 @@ using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Services;
 using Project.Scripts.Services.Audio;
 using Project.Scripts.Services.Audio.AudioSystem;
-using Project.Scripts.Services.Combat;
 using Project.Scripts.Services.Damage;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.Grid;
@@ -26,10 +25,6 @@ namespace Project.Scripts.Gameplay
         [Tooltip("View component that sizes the board frame and spawn mask at runtime")]
         [SerializeField] private BoardView _boardView;
 
-        [Tooltip("Prefab containing the GameplayView component — instantiated into the main canvas on start")]
-        [SerializeField] private GameObject _gameplayViewPrefab;
-
-
         private EventBus _eventBus;
         private AudioService _audioService;
         private BoardConfig _boardConfig;
@@ -38,13 +33,13 @@ namespace Project.Scripts.Gameplay
         private InputConfig _inputConfig;
         private IDamageCalculator _damageCalculator;
         private SpecialTileConfig _specialTileConfig;
+        private UIConfig _uiConfig;
         private UIService _uiService;
         private GameplayViewModel _gameplayViewModel;
+        private IGameStateService _gameStateService;
+        private GameResultPresenter _gameResultPresenter;
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
-        private GameStateService _gameStateService;
-        private MoveCounterService _moveCounterService;
-        private EnemyStateService _enemyStateService;
         private GameAudioController _gameAudioController;
 
 
@@ -58,9 +53,6 @@ namespace Project.Scripts.Gameplay
             _uiService?.Close<GameplayView>();
             _swapHandler?.Dispose();
             _inputService?.Dispose();
-            _moveCounterService?.Dispose();
-            _enemyStateService?.Dispose();
-            _gameStateService?.Dispose();
         }
 
 
@@ -74,8 +66,11 @@ namespace Project.Scripts.Gameplay
             InputConfig inputConfig,
             IDamageCalculator damageCalculator,
             SpecialTileConfig specialTileConfig,
+            UIConfig uiConfig,
             UIService uiService,
-            GameplayViewModel gameplayViewModel)
+            GameplayViewModel gameplayViewModel,
+            IGameStateService gameStateService,
+            GameResultPresenter gameResultPresenter)
         {
             _eventBus = eventBus;
             _audioService = audioService;
@@ -85,14 +80,17 @@ namespace Project.Scripts.Gameplay
             _inputConfig = inputConfig;
             _damageCalculator = damageCalculator;
             _specialTileConfig = specialTileConfig;
+            _uiConfig = uiConfig;
             _uiService = uiService;
             _gameplayViewModel = gameplayViewModel;
+            _gameStateService = gameStateService;
+            _gameResultPresenter = gameResultPresenter;
         }
 
 
         private async UniTaskVoid InitAsync()
         {
-            _uiService.RegisterView<GameplayView>(_gameplayViewPrefab, UILayer.Main);
+            _uiService.RegisterView<GameplayView>(_uiConfig.GameplayViewPrefab, UILayer.Main);
             await _uiService.Show<GameplayView, GameplayViewModel>(_gameplayViewModel);
 
             var cellSize = ComputeCellSize();
@@ -100,7 +98,7 @@ namespace Project.Scripts.Gameplay
             _boardView.transform.position = boardCenter;
 
             var pool = new TilePool(_boardConfig.TilePrefab, _tileContainer, _animConfig, cellSize, _boardConfig.TileScale);
-            var matchFinder = new MatchFinder(_levelConfig.MinMatchLength);
+            var matchFinder = new MatchFinder(_boardConfig.MinMatchLength);
             var gridManager = new GridManager(_levelConfig, _animConfig, pool, cellSize);
             gridManager.SetOrigin(ComputeGridOrigin(boardCenter, cellSize));
 
@@ -116,10 +114,6 @@ namespace Project.Scripts.Gameplay
             var specialTileResolver = new SpecialTileResolver(_specialTileConfig, _levelConfig);
             var swapComboResolver = new SwapComboResolver();
 
-            _moveCounterService = new MoveCounterService(_eventBus, _levelConfig);
-            _enemyStateService = new EnemyStateService(_eventBus, _levelConfig);
-            _gameStateService = new GameStateService(_eventBus);
-
             var orchestrator = new BoardOrchestrator(
                 _eventBus,
                 gridManager,
@@ -134,6 +128,8 @@ namespace Project.Scripts.Gameplay
 
             _gameAudioController = new GameAudioController(_audioService, _eventBus);
             _gameAudioController.StartMusic();
+
+            _gameResultPresenter.Initialize();
 
 #if UNITY_EDITOR
             var editHandler = gameObject.AddComponent<BoardEditClickHandler>();
