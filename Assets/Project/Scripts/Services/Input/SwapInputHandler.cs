@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Services.Grid;
+using Project.Scripts.Shared;
 using UnityEngine;
 
 namespace Project.Scripts.Services.Input
@@ -14,7 +15,7 @@ namespace Project.Scripts.Services.Input
         private readonly IGridManager _grid;
         private readonly float _worldThreshold;
         private Camera _camera;
-        private Vector2Int _startGridPos;
+        private GridPoint _startGridPos;
         private bool _hasPendingSwap;
 
 
@@ -96,12 +97,12 @@ namespace Project.Scripts.Services.Input
             return new Vector2(target.x - origin.x, target.y - origin.y);
         }
 
-        private static Vector2Int GetDirection(Vector2 worldDelta)
+        private static GridPoint GetDirection(Vector2 worldDelta)
         {
             if (Mathf.Abs(worldDelta.x) >= Mathf.Abs(worldDelta.y))
-                return worldDelta.x > 0 ? Vector2Int.right : Vector2Int.left;
+                return worldDelta.x > 0 ? GridPoint.Right : GridPoint.Left;
 
-            return worldDelta.y > 0 ? Vector2Int.up : Vector2Int.down;
+            return worldDelta.y > 0 ? GridPoint.Up : GridPoint.Down;
         }
     }
 }

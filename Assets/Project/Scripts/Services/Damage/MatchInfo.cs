@@ -1,6 +1,6 @@
 using Project.Scripts.Services.Grid;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
-using UnityEngine;
 
 namespace Project.Scripts.Services.Damage
 {
@@ -10,13 +10,13 @@ namespace Project.Scripts.Services.Damage
         public readonly TileKind TileKind;
         public readonly int MaxLineLength;
         public readonly int TileCount;
-        public readonly Vector2Int Center;
+        public readonly GridPoint Center;
         public readonly int Damage;
         public readonly int EnergyGenerated;
 
 
         public MatchInfo(MatchShape shape, TileKind tileKind, int maxLineLength,
-            int tileCount, Vector2Int center, int damage, int energyGenerated)
+            int tileCount, GridPoint center, int damage, int energyGenerated)
         {
             Shape = shape;
             TileKind = tileKind;

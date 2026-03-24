@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using Project.Scripts.Configs;
 using Project.Scripts.Services.Grid;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
-using UnityEngine;
 
 namespace Project.Scripts.Services
 {
@@ -19,9 +19,9 @@ namespace Project.Scripts.Services
         }
 
 
-        public Dictionary<Vector2Int, SpecialTileSpawnData> Resolve(List<MatchResult> matches, Vector2Int pivotPosition)
+        public Dictionary<GridPoint, SpecialTileSpawnData> Resolve(List<MatchResult> matches, GridPoint pivotPosition)
         {
-            var result = new Dictionary<Vector2Int, SpecialTileSpawnData>();
+            var result = new Dictionary<GridPoint, SpecialTileSpawnData>();
             var rules = _config.Rules;
 
             for (var i = 0; i < matches.Count; i++)
@@ -33,7 +33,7 @@ namespace Project.Scripts.Services
                     continue;
 
                 var tileConfig = FindTileConfig(entry.TileKind);
-                if (null == tileConfig)
+                if (!tileConfig)
                     continue;
 
                 var spawnPos = entry.SpawnPosition == SpecialTileSpawnPosition.MatchCenter

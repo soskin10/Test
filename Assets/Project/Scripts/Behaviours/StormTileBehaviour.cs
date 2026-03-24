@@ -1,4 +1,5 @@
 using Project.Scripts.Services.Grid;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
 using UnityEngine;
 
@@ -10,7 +11,7 @@ namespace Project.Scripts.Behaviours
         public override bool IsActivatedBySwap => true;
 
 
-        public override void OnTileDestroyed(Vector2Int gridPos, IGridManager grid)
+        public override void OnTileDestroyed(GridPoint gridPos, IGridManager grid)
         {
             var tile = grid.GetTile(gridPos);
             if (false == tile)

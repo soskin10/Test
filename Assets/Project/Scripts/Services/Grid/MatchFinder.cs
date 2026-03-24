@@ -1,6 +1,7 @@
+using System;
 using System.Collections.Generic;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
-using UnityEngine;
 
 namespace Project.Scripts.Services.Grid
 {
@@ -8,10 +9,10 @@ namespace Project.Scripts.Services.Grid
     {
         private readonly int _minLength;
 
-        private static readonly Vector2Int[] Directions =
+        private static readonly GridPoint[] Directions =
         {
-            Vector2Int.up, Vector2Int.down,
-            Vector2Int.left, Vector2Int.right
+            GridPoint.Up, GridPoint.Down,
+            GridPoint.Left, GridPoint.Right
         };
 
 
@@ -46,9 +47,9 @@ namespace Project.Scripts.Services.Grid
                     if (len < _minLength)
                         continue;
 
-                    var set = new HashSet<Vector2Int>(len);
+                    var set = new HashSet<GridPoint>(len);
                     for (var i = start; i < x; i++)
-                        set.Add(new Vector2Int(i, y));
+                        set.Add(new GridPoint(i, y));
 
                     runs.Add(new Run(set, len, hasH: true, hasV: false, kind));
                 }
@@ -74,9 +75,9 @@ namespace Project.Scripts.Services.Grid
                     if (len < _minLength)
                         continue;
 
-                    var set = new HashSet<Vector2Int>(len);
+                    var set = new HashSet<GridPoint>(len);
                     for (var i = start; i < y; i++)
-                        set.Add(new Vector2Int(x, i));
+                        set.Add(new GridPoint(x, i));
 
                     runs.Add(new Run(set, len, hasH: false, hasV: true, kind));
                 }
@@ -101,11 +102,11 @@ namespace Project.Scripts.Services.Grid
                         if (false == runs[i].Pos.Overlaps(runs[j].Pos))
                             continue;
 
-                        var merged = new HashSet<Vector2Int>(runs[i].Pos);
+                        var merged = new HashSet<GridPoint>(runs[i].Pos);
                         merged.UnionWith(runs[j].Pos);
                         runs[i] = new Run(
                             merged,
-                            Mathf.Max(runs[i].Len, runs[j].Len),
+                            Math.Max(runs[i].Len, runs[j].Len),
                             runs[i].HasH || runs[j].HasH,
                             runs[i].HasV || runs[j].HasV,
                             runs[i].Kind
@@ -126,7 +127,7 @@ namespace Project.Scripts.Services.Grid
                 var run = runs[i];
                 results.Add(new MatchResult
                 {
-                    Positions = new List<Vector2Int>(run.Pos),
+                    Positions = new List<GridPoint>(run.Pos),
                     MaxLineLength = run.Len,
                     IsComplex = run.HasH && run.HasV,
                     TileKind = run.Kind,
@@ -138,7 +139,7 @@ namespace Project.Scripts.Services.Grid
             return results;
         }
 
-        private static MatchShape ComputeShape(HashSet<Vector2Int> positions, bool hasH, bool hasV)
+        private static MatchShape ComputeShape(HashSet<GridPoint> positions, bool hasH, bool hasV)
         {
             if (false == hasV)
                 return MatchShape.Horizontal;
@@ -160,29 +161,33 @@ namespace Project.Scripts.Services.Grid
             return MatchShape.LShape;
         }
 
-        private static Vector2Int ComputeCenter(HashSet<Vector2Int> positions)
+        private static GridPoint ComputeCenter(HashSet<GridPoint> positions)
         {
             foreach (var pos in positions)
             {
-                var hasH = positions.Contains(pos + Vector2Int.left) || positions.Contains(pos + Vector2Int.right);
-                var hasV = positions.Contains(pos + Vector2Int.up) || positions.Contains(pos + Vector2Int.down);
+                var hasH = positions.Contains(pos + GridPoint.Left) || positions.Contains(pos + GridPoint.Right);
+                var hasV = positions.Contains(pos + GridPoint.Up) || positions.Contains(pos + GridPoint.Down);
                 if (hasH && hasV)
                     return pos;
             }
 
-            int sumX = 0, sumY = 0;
+            var sumX = 0;
+            var sumY = 0;
             foreach (var pos in positions)
             {
-                sumX += pos.x;
-                sumY += pos.y;
+                sumX += pos.X;
+                sumY += pos.Y;
             }
 
-            var centroid = new Vector2((float)sumX / positions.Count, (float)sumY / positions.Count);
-            var best = Vector2Int.zero;
+            var centroidX = (float)sumX / positions.Count;
+            var centroidY = (float)sumY / positions.Count;
+            var best = GridPoint.Zero;
             var bestDist = float.MaxValue;
             foreach (var pos in positions)
             {
-                var dist = (pos - centroid).sqrMagnitude;
+                var dx = pos.X - centroidX;
+                var dy = pos.Y - centroidY;
+                var dist = dx * dx + dy * dy;
                 if (dist < bestDist)
                 {
                     bestDist = dist;
@@ -196,14 +201,14 @@ namespace Project.Scripts.Services.Grid
 
         private readonly struct Run
         {
-            public readonly HashSet<Vector2Int> Pos;
+            public readonly HashSet<GridPoint> Pos;
             public readonly int Len;
             public readonly bool HasH;
             public readonly bool HasV;
             public readonly TileKind Kind;
 
 
-            public Run(HashSet<Vector2Int> pos, int len, bool hasH, bool hasV, TileKind kind)
+            public Run(HashSet<GridPoint> pos, int len, bool hasH, bool hasV, TileKind kind)
             {
                 Pos = pos;
                 Len = len;

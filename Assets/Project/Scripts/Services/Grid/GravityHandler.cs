@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
-using UnityEngine;
+using Project.Scripts.Shared;
 
 namespace Project.Scripts.Services.Grid
 {
@@ -28,14 +28,14 @@ namespace Project.Scripts.Services.Grid
                 var writeY = 0;
                 for (var readY = 0; readY < _config.Height; readY++)
                 {
-                    var tile = _grid.GetTile(new Vector2Int(x, readY));
+                    var tile = _grid.GetTile(new GridPoint(x, readY));
                     if (!tile)
                         continue;
 
                     if (readY != writeY)
                     {
-                        var from = new Vector2Int(x, readY);
-                        var to = new Vector2Int(x, writeY);
+                        var from = new GridPoint(x, readY);
+                        var to = new GridPoint(x, writeY);
                         _grid.ClearTile(from);
                         _grid.SetTile(to, tile);
                         tile.GridPosition = to;
@@ -50,11 +50,11 @@ namespace Project.Scripts.Services.Grid
 
         public async UniTask SpawnNewTiles()
         {
-            var emptyPositions = new List<Vector2Int>();
+            var emptyPositions = new List<GridPoint>();
             for (var x = 0; x < _config.Width; x++)
                 for (var y = _config.Height - 1; y >= 0; y--)
                 {
-                    var pos = new Vector2Int(x, y);
+                    var pos = new GridPoint(x, y);
                     if (!_grid.GetTile(pos))
                         emptyPositions.Add(pos);
                 }
@@ -69,11 +69,11 @@ namespace Project.Scripts.Services.Grid
                 var pos = emptyPositions[i];
                 var tileConfig = _grid.ResolveRegularTile();
                 var tile = _pool.Get();
-                tile.transform.position = _grid.GridToWorld(new Vector2Int(pos.x, spawnHeights[pos.x]));
+                tile.transform.position = _grid.GridToWorld(new GridPoint(pos.X, spawnHeights[pos.X]));
                 tile.Init(tileConfig, pos);
                 _grid.SetTile(pos, tile);
                 tasks.Add(tile.Animator.AnimateFallTo(_grid.GridToWorld(pos)));
-                spawnHeights[pos.x]++;
+                spawnHeights[pos.X]++;
             }
 
             await UniTask.WhenAll(tasks);

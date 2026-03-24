@@ -6,6 +6,7 @@ using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Services.Grid;
 using Project.Scripts.Services.Input;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
 using UnityEngine;
 
@@ -110,7 +111,7 @@ namespace Project.Scripts.Services
                 else if (fromIsSpecial || toIsSpecial)
                 {
                     Tile specialTile, partnerTile;
-                    Vector2Int specialFinalPos;
+                    GridPoint specialFinalPos;
 
                     if (fromIsSpecial)
                     {
@@ -175,7 +176,7 @@ namespace Project.Scripts.Services
             }
         }
 
-        private async UniTask ActivateSpecialWithPartner(Tile specialTile, Tile partnerTile, Vector2Int specialFinalPos)
+        private async UniTask ActivateSpecialWithPartner(Tile specialTile, Tile partnerTile, GridPoint specialFinalPos)
         {
             if (specialTile.Config.Kind == TileKind.Storm)
                 specialTile.SetPayloadKind(partnerTile.Kind);
@@ -184,7 +185,7 @@ namespace Project.Scripts.Services
         }
 
         private async UniTask ExecuteSwapCombo(TileKind kindA, TileKind kindB,
-            Vector2Int posA, Vector2Int posB, Tile tileA, Tile tileB)
+            GridPoint posA, GridPoint posB, Tile tileA, Tile tileB)
         {
             var comboType = _swapComboResolver.Resolve(kindA, kindB);
 
@@ -230,14 +231,14 @@ namespace Project.Scripts.Services
             }
         }
 
-        private async UniTask ExecuteStormStormCombo(Vector2Int posA, Vector2Int posB)
+        private async UniTask ExecuteStormStormCombo(GridPoint posA, GridPoint posB)
         {
             await UniTask.WhenAll(_grid.ConsumeTile(posA), _grid.ConsumeTile(posB));
             var allPositions = _grid.GetAllOccupied();
             await _grid.ActivateTiles(allPositions);
         }
 
-        private async UniTask ExecuteStormBombCombo(Vector2Int stormPos)
+        private async UniTask ExecuteStormBombCombo(GridPoint stormPos)
         {
             await _grid.ConsumeTile(stormPos);
             var bombPositions = _grid.GetAllOfKind(TileKind.Bomb);
@@ -247,7 +248,7 @@ namespace Project.Scripts.Services
             await _grid.ActivateTiles(bombPositions);
         }
 
-        private async UniTask ExecuteStormLineCombo(Vector2Int stormPos)
+        private async UniTask ExecuteStormLineCombo(GridPoint stormPos)
         {
             await _grid.ConsumeTile(stormPos);
             var linePositions = _grid.GetAllOfKind(TileKind.LineRuneH);
@@ -258,50 +259,41 @@ namespace Project.Scripts.Services
             await _grid.ActivateTiles(linePositions);
         }
 
-        private async UniTask ExecuteBombBombCombo(Vector2Int posA, Vector2Int posB, int doubleRadius)
+        private async UniTask ExecuteBombBombCombo(GridPoint posA, GridPoint posB, int doubleRadius)
         {
             await UniTask.WhenAll(_grid.ConsumeTile(posA), _grid.ConsumeTile(posB));
 
-            var explosion = new HashSet<Vector2Int>(_grid.GetNeighboursInRadius(posA, doubleRadius));
+            var explosion = new HashSet<GridPoint>(_grid.GetNeighboursInRadius(posA, doubleRadius));
             var ps = _grid.GetNeighboursInRadius(posB, doubleRadius);
             for (var i = 0; i < ps.Count; i++)
-            {
-                var p = ps[i];
-                explosion.Add(p);
-            }
+                explosion.Add(ps[i]);
 
-            await _grid.ActivateTiles(new List<Vector2Int>(explosion));
+            await _grid.ActivateTiles(new List<GridPoint>(explosion));
         }
 
-        private async UniTask ExecuteBombLineCombo(Vector2Int posA, Vector2Int posB,
-            Vector2Int bombPos, int bombRadius)
+        private async UniTask ExecuteBombLineCombo(GridPoint posA, GridPoint posB,
+            GridPoint bombPos, int bombRadius)
         {
             await UniTask.WhenAll(_grid.ConsumeTile(posA), _grid.ConsumeTile(posB));
 
-            var area = new HashSet<Vector2Int>(_grid.GetNeighboursInRadius(bombPos, bombRadius));
-            var row = _grid.GetAllInRow(bombPos.y);
+            var area = new HashSet<GridPoint>(_grid.GetNeighboursInRadius(bombPos, bombRadius));
+            var row = _grid.GetAllInRow(bombPos.Y);
             for (var i = 0; i < row.Count; i++)
-            {
-                var p = row[i];
-                area.Add(p);
-            }
+                area.Add(row[i]);
 
-            var ps = _grid.GetAllInColumn(bombPos.x);
+            var ps = _grid.GetAllInColumn(bombPos.X);
             for (var i = 0; i < ps.Count; i++)
-            {
-                var p = ps[i];
-                area.Add(p);
-            }
+                area.Add(ps[i]);
 
-            await _grid.ActivateTiles(new List<Vector2Int>(area));
+            await _grid.ActivateTiles(new List<GridPoint>(area));
         }
 
-        private async UniTask ExecuteLineLineCombo(Vector2Int posA, Vector2Int posB)
+        private async UniTask ExecuteLineLineCombo(GridPoint posA, GridPoint posB)
         {
-            await _grid.ActivateTiles(new List<Vector2Int> { posA, posB });
+            await _grid.ActivateTiles(new List<GridPoint> { posA, posB });
         }
 
-        private async UniTask RunPostActivationFlow(List<WaveBreakdown> waves, Vector2Int pivotPosition)
+        private async UniTask RunPostActivationFlow(List<WaveBreakdown> waves, GridPoint pivotPosition)
         {
             await _gravity.ApplyGravity();
             await _gravity.SpawnNewTiles();
@@ -312,7 +304,7 @@ namespace Project.Scripts.Services
             await EnsureMovesAvailable();
         }
 
-        private async UniTask ProcessMatchChain(List<MatchResult> matches, List<WaveBreakdown> waves, Vector2Int pivotPosition, bool spawnSpecials)
+        private async UniTask ProcessMatchChain(List<MatchResult> matches, List<WaveBreakdown> waves, GridPoint pivotPosition, bool spawnSpecials)
         {
             while (matches.Count > 0)
             {
@@ -347,7 +339,7 @@ namespace Project.Scripts.Services
 
             var immediateMatches = _matchFinder.FindMatches(_grid.GetGridState());
             if (immediateMatches.Count > 0)
-                await ProcessMatchChain(immediateMatches, new List<WaveBreakdown>(), Vector2Int.zero, false);
+                await ProcessMatchChain(immediateMatches, new List<WaveBreakdown>(), GridPoint.Zero, false);
         }
 
         private static int CountActiveTiles(TileKind[,] state)

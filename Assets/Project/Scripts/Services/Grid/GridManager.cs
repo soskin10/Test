@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Project.Scripts.Services.Grid
         private readonly AnimationConfig _animConfig;
         private readonly TilePool _pool;
         private readonly Tile[,] _grid;
-        private readonly HashSet<Vector2Int> _scheduledRemovals = new();
+        private readonly HashSet<GridPoint> _scheduledRemovals = new();
         private readonly float _cellSize;
         private Vector3 _origin;
 
@@ -32,36 +33,36 @@ namespace Project.Scripts.Services.Grid
             _origin = origin;
         }
 
-        public Tile GetTile(Vector2Int pos)
+        public Tile GetTile(GridPoint pos)
         {
-            return _grid[pos.x, pos.y];
+            return _grid[pos.X, pos.Y];
         }
 
-        public void SetTile(Vector2Int pos, Tile tile)
+        public void SetTile(GridPoint pos, Tile tile)
         {
-            _grid[pos.x, pos.y] = tile;
+            _grid[pos.X, pos.Y] = tile;
         }
 
-        public void ClearTile(Vector2Int pos)
+        public void ClearTile(GridPoint pos)
         {
-            _grid[pos.x, pos.y] = null;
+            _grid[pos.X, pos.Y] = null;
         }
 
-        public bool IsValidPosition(Vector2Int pos)
+        public bool IsValidPosition(GridPoint pos)
         {
-            return pos.x >= 0 && pos.x < _levelConfig.Width && pos.y >= 0 && pos.y < _levelConfig.Height;
+            return pos.X >= 0 && pos.X < _levelConfig.Width && pos.Y >= 0 && pos.Y < _levelConfig.Height;
         }
 
-        public Vector3 GridToWorld(Vector2Int pos)
+        public Vector3 GridToWorld(GridPoint pos)
         {
-            return _origin + new Vector3(pos.x * _cellSize, pos.y * _cellSize, 0f);
+            return _origin + new Vector3(pos.X * _cellSize, pos.Y * _cellSize, 0f);
         }
 
-        public Vector2Int WorldToGrid(Vector3 worldPos)
+        public GridPoint WorldToGrid(Vector3 worldPos)
         {
             var relative = worldPos - _origin;
 
-            return new Vector2Int(
+            return new GridPoint(
                 Mathf.RoundToInt(relative.x / _cellSize),
                 Mathf.RoundToInt(relative.y / _cellSize)
             );
@@ -82,22 +83,22 @@ namespace Project.Scripts.Services.Grid
             return _levelConfig.RegularTiles[UnityEngine.Random.Range(0, _levelConfig.RegularTiles.Length)];
         }
 
-        public void ScheduleRemove(List<Vector2Int> positions)
+        public void ScheduleRemove(List<GridPoint> positions)
         {
             for (var i = 0; i < positions.Count; i++)
                 _scheduledRemovals.Add(positions[i]);
         }
 
-        public List<Vector2Int> GetNeighboursInRadius(Vector2Int center, int radius)
+        public List<GridPoint> GetNeighboursInRadius(GridPoint center, int radius)
         {
-            var result = new List<Vector2Int>();
+            var result = new List<GridPoint>();
             for (var dx = -radius; dx <= radius; dx++)
                 for (var dy = -radius; dy <= radius; dy++)
                 {
                     if (dx == 0 && dy == 0)
                         continue;
 
-                    var pos = new Vector2Int(center.x + dx, center.y + dy);
+                    var pos = new GridPoint(center.X + dx, center.Y + dy);
                     if (IsValidPosition(pos))
                         result.Add(pos);
                 }
@@ -105,42 +106,42 @@ namespace Project.Scripts.Services.Grid
             return result;
         }
 
-        public List<Vector2Int> GetAllInRow(int y)
+        public List<GridPoint> GetAllInRow(int y)
         {
-            var result = new List<Vector2Int>(_levelConfig.Width);
+            var result = new List<GridPoint>(_levelConfig.Width);
             for (var x = 0; x < _levelConfig.Width; x++)
-                result.Add(new Vector2Int(x, y));
+                result.Add(new GridPoint(x, y));
 
             return result;
         }
 
-        public List<Vector2Int> GetAllInColumn(int x)
+        public List<GridPoint> GetAllInColumn(int x)
         {
-            var result = new List<Vector2Int>(_levelConfig.Height);
+            var result = new List<GridPoint>(_levelConfig.Height);
             for (var y = 0; y < _levelConfig.Height; y++)
-                result.Add(new Vector2Int(x, y));
+                result.Add(new GridPoint(x, y));
 
             return result;
         }
 
-        public List<Vector2Int> GetAllOfKind(TileKind kind)
+        public List<GridPoint> GetAllOfKind(TileKind kind)
         {
-            var result = new List<Vector2Int>();
+            var result = new List<GridPoint>();
             for (var x = 0; x < _levelConfig.Width; x++)
                 for (var y = 0; y < _levelConfig.Height; y++)
                     if (_grid[x, y] && _grid[x, y].Kind == kind)
-                        result.Add(new Vector2Int(x, y));
+                        result.Add(new GridPoint(x, y));
 
             return result;
         }
 
-        public List<Vector2Int> GetAllOccupied()
+        public List<GridPoint> GetAllOccupied()
         {
-            var result = new List<Vector2Int>();
+            var result = new List<GridPoint>();
             for (var x = 0; x < _levelConfig.Width; x++)
                 for (var y = 0; y < _levelConfig.Height; y++)
                     if (_grid[x, y])
-                        result.Add(new Vector2Int(x, y));
+                        result.Add(new GridPoint(x, y));
 
             return result;
         }
@@ -185,7 +186,7 @@ namespace Project.Scripts.Services.Grid
             for (var x = 0; x < _levelConfig.Width; x++)
                 for (var y = 0; y < _levelConfig.Height; y++)
                 {
-                    var pos = new Vector2Int(x, y);
+                    var pos = new GridPoint(x, y);
                     var tileConfig = GetNoMatchConfig(x, y, kindCache);
                     kindCache[x, y] = tileConfig.Kind;
                     var tile = _pool.Get();
@@ -198,24 +199,24 @@ namespace Project.Scripts.Services.Grid
             await UniTask.WhenAll(tasks);
         }
 
-        public async UniTask RemoveMatches(List<MatchResult> matches, Dictionary<Vector2Int, SpecialTileSpawnData> specialPlacements)
+        public async UniTask RemoveMatches(List<MatchResult> matches, Dictionary<GridPoint, SpecialTileSpawnData> specialPlacements)
         {
-            var posSet = new HashSet<Vector2Int>();
+            var posSet = new HashSet<GridPoint>();
             for (var i = 0; i < matches.Count; i++)
                 for (var j = 0; j < matches[i].Positions.Count; j++)
                     posSet.Add(matches[i].Positions[j]);
 
-            await ProcessRemovals(new List<Vector2Int>(posSet), specialPlacements);
+            await ProcessRemovals(new List<GridPoint>(posSet), specialPlacements);
             await ProcessScheduledRemovals();
         }
 
-        public async UniTask ActivateBySwap(Vector2Int pos)
+        public async UniTask ActivateBySwap(GridPoint pos)
         {
-            await ProcessRemovals(new List<Vector2Int> { pos }, null);
+            await ProcessRemovals(new List<GridPoint> { pos }, null);
             await ProcessScheduledRemovals();
         }
 
-        public async UniTask ActivateTiles(List<Vector2Int> positions)
+        public async UniTask ActivateTiles(List<GridPoint> positions)
         {
             if (positions.Count == 0)
                 return;
@@ -224,27 +225,27 @@ namespace Project.Scripts.Services.Grid
             await ProcessScheduledRemovals();
         }
 
-        public async UniTask ConsumeTile(Vector2Int pos)
+        public async UniTask ConsumeTile(GridPoint pos)
         {
             if (false == IsValidPosition(pos))
                 return;
 
-            var tile = _grid[pos.x, pos.y];
+            var tile = _grid[pos.X, pos.Y];
             if (false == tile)
                 return;
 
             await tile.Animator.AnimateDestroy();
-            _grid[pos.x, pos.y] = null;
+            _grid[pos.X, pos.Y] = null;
             _pool.Release(tile);
         }
 
-        public async UniTask SwapTiles(Vector2Int from, Vector2Int to)
+        public async UniTask SwapTiles(GridPoint from, GridPoint to)
         {
-            var tileA = _grid[from.x, from.y];
-            var tileB = _grid[to.x, to.y];
+            var tileA = _grid[from.X, from.Y];
+            var tileB = _grid[to.X, to.Y];
 
-            _grid[from.x, from.y] = tileB;
-            _grid[to.x, to.y] = tileA;
+            _grid[from.X, from.Y] = tileB;
+            _grid[to.X, to.Y] = tileA;
 
             if (tileA)
                 tileA.GridPosition = to;
@@ -259,7 +260,7 @@ namespace Project.Scripts.Services.Grid
 
         public async UniTask ShuffleGrid()
         {
-            var positions = new List<Vector2Int>();
+            var positions = new List<GridPoint>();
             var configs = new List<TileConfig>();
             for (var x = 0; x < _levelConfig.Width; x++)
                 for (var y = 0; y < _levelConfig.Height; y++)
@@ -267,7 +268,7 @@ namespace Project.Scripts.Services.Grid
                     var tile = _grid[x, y];
                     if (tile)
                     {
-                        positions.Add(new Vector2Int(x, y));
+                        positions.Add(new GridPoint(x, y));
                         configs.Add(tile.Config);
                     }
                 }
@@ -284,21 +285,21 @@ namespace Project.Scripts.Services.Grid
                 var pos = positions[i];
                 for (var j = i; j < configs.Count; j++)
                 {
-                    if (false == WouldCreateMatch(pos.x, pos.y, configs[j].Kind, assignedKinds))
+                    if (false == WouldCreateMatch(pos.X, pos.Y, configs[j].Kind, assignedKinds))
                     {
                         if (j != i) (configs[i], configs[j]) = (configs[j], configs[i]);
                         break;
                     }
                 }
-                assignedKinds[pos.x, pos.y] = configs[i].Kind;
+                assignedKinds[pos.X, pos.Y] = configs[i].Kind;
             }
 
             var tasks = new List<UniTask>();
             for (var i = 0; i < positions.Count; i++)
             {
                 var pos = positions[i];
-                _grid[pos.x, pos.y].Init(configs[i], pos);
-                tasks.Add(_grid[pos.x, pos.y].Animator.AnimateSpawn());
+                _grid[pos.X, pos.Y].Init(configs[i], pos);
+                tasks.Add(_grid[pos.X, pos.Y].Animator.AnimateSpawn());
             }
 
             await UniTask.WhenAll(tasks);
@@ -319,9 +320,9 @@ namespace Project.Scripts.Services.Grid
         }
 
 #if UNITY_EDITOR
-        public void ReplaceForEdit(Vector2Int pos, TileKind kind)
+        public void ReplaceForEdit(GridPoint pos, TileKind kind)
         {
-            var tile = _grid[pos.x, pos.y];
+            var tile = _grid[pos.X, pos.Y];
             if (false == tile)
                 return;
 
@@ -352,22 +353,22 @@ namespace Project.Scripts.Services.Grid
             while (_scheduledRemovals.Count > 0)
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(_animConfig.ChainReactionWaveDelay));
-                var batch = new List<Vector2Int>(_scheduledRemovals);
+                var batch = new List<GridPoint>(_scheduledRemovals);
                 _scheduledRemovals.Clear();
                 await ProcessRemovals(batch, null);
             }
         }
 
-        private async UniTask ProcessRemovals(List<Vector2Int> positions, Dictionary<Vector2Int, SpecialTileSpawnData> specialPlacements)
+        private async UniTask ProcessRemovals(List<GridPoint> positions, Dictionary<GridPoint, SpecialTileSpawnData> specialPlacements)
         {
-            var toDestroy = new List<(Vector2Int pos, Tile tile)>(positions.Count);
+            var toDestroy = new List<(GridPoint pos, Tile tile)>(positions.Count);
             for (var i = 0; i < positions.Count; i++)
             {
                 var pos = positions[i];
                 if (false == IsValidPosition(pos))
                     continue;
 
-                var tile = _grid[pos.x, pos.y];
+                var tile = _grid[pos.X, pos.Y];
                 if (false == tile)
                     continue;
 
@@ -387,7 +388,7 @@ namespace Project.Scripts.Services.Grid
             {
                 var (pos, tile) = toDestroy[i];
                 tile.Config.Behaviour.OnTileDestroyed(pos, this);
-                _grid[pos.x, pos.y] = null;
+                _grid[pos.X, pos.Y] = null;
                 _pool.Release(tile);
             }
 
@@ -401,14 +402,14 @@ namespace Project.Scripts.Services.Grid
                 if (false == IsValidPosition(pos))
                     continue;
 
-                if (_grid[pos.x, pos.y])
+                if (_grid[pos.X, pos.Y])
                     continue;
 
                 var data = kvp.Value;
                 var specialTile = _pool.Get();
                 specialTile.transform.position = GridToWorld(pos);
                 specialTile.Init(data.Config, pos, data.PayloadKind);
-                _grid[pos.x, pos.y] = specialTile;
+                _grid[pos.X, pos.Y] = specialTile;
                 spawnTasks.Add(specialTile.Animator.AnimateSpawn());
             }
 
@@ -420,7 +421,7 @@ namespace Project.Scripts.Services.Grid
         {
             var tile = _grid[x, y];
             if (tile)
-                tile.Init(config, new Vector2Int(x, y));
+                tile.Init(config, new GridPoint(x, y));
         }
 
         private bool WouldCreateMatch(int x, int y, TileKind kind, TileKind[,] assigned)

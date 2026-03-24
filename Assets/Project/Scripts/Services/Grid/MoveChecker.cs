@@ -1,6 +1,6 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Shared;
 using Project.Scripts.Tiles;
-using UnityEngine;
 
 namespace Project.Scripts.Services.Grid
 {
@@ -24,20 +24,20 @@ namespace Project.Scripts.Services.Grid
             for (var x = 0; x < _config.Width; x++)
                 for (var y = 0; y < _config.Height; y++)
                 {
-                    var tileA = _grid.GetTile(new Vector2Int(x, y));
+                    var tileA = _grid.GetTile(new GridPoint(x, y));
                     if (!tileA)
                         continue;
 
                     if (x + 1 < _config.Width)
                     {
-                        var tileB = _grid.GetTile(new Vector2Int(x + 1, y));
+                        var tileB = _grid.GetTile(new GridPoint(x + 1, y));
                         if (tileB && IsValidSwap(state, tileA, tileB, x, y, x + 1, y))
                             return true;
                     }
 
                     if (y + 1 < _config.Height)
                     {
-                        var tileB = _grid.GetTile(new Vector2Int(x, y + 1));
+                        var tileB = _grid.GetTile(new GridPoint(x, y + 1));
                         if (tileB && IsValidSwap(state, tileA, tileB, x, y, x, y + 1))
                             return true;
                     }

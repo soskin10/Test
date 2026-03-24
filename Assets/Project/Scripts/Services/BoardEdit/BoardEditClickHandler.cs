@@ -2,6 +2,7 @@
 using DG.Tweening;
 using Project.Scripts.Configs;
 using Project.Scripts.Services.Grid;
+using Project.Scripts.Shared;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -71,10 +72,10 @@ namespace Project.Scripts.Services.BoardEdit
         private void CreateOverlay()
         {
             var half = _cellSize * 0.5f;
-            var bl = _grid.GridToWorld(new Vector2Int(0, 0)) + new Vector3(-half, -half, 0f);
-            var br = _grid.GridToWorld(new Vector2Int(_levelConfig.Width - 1, 0)) + new Vector3( half, -half, 0f);
-            var tr = _grid.GridToWorld(new Vector2Int(_levelConfig.Width - 1, _levelConfig.Height - 1)) + new Vector3( half,  half, 0f);
-            var tl = _grid.GridToWorld(new Vector2Int(0, _levelConfig.Height - 1)) + new Vector3(-half,  half, 0f);
+            var bl = _grid.GridToWorld(new GridPoint(0, 0)) + new Vector3(-half, -half, 0f);
+            var br = _grid.GridToWorld(new GridPoint(_levelConfig.Width - 1, 0)) + new Vector3( half, -half, 0f);
+            var tr = _grid.GridToWorld(new GridPoint(_levelConfig.Width - 1, _levelConfig.Height - 1)) + new Vector3( half,  half, 0f);
+            var tl = _grid.GridToWorld(new GridPoint(0, _levelConfig.Height - 1)) + new Vector3(-half,  half, 0f);
 
             _overlayGo = new GameObject("BoardEditOverlay");
             _overlay = _overlayGo.AddComponent<LineRenderer>();

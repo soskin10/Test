@@ -1,4 +1,5 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Shared;
 using UnityEngine;
 
 namespace Project.Scripts.Tiles
@@ -10,13 +11,13 @@ namespace Project.Scripts.Tiles
 
 
         public TileKind Kind { get; private set; }
-        public Vector2Int GridPosition { get; set; }
+        public GridPoint GridPosition { get; set; }
         public TileConfig Config { get; private set; }
         public TileAnimator Animator => _animator;
         public TileKind PayloadKind { get; private set; }
 
 
-        public void Init(TileConfig config, Vector2Int gridPos, TileKind payloadKind = TileKind.None)
+        public void Init(TileConfig config, GridPoint gridPos, TileKind payloadKind = TileKind.None)
         {
             Config = config;
             Kind = config.Kind;
