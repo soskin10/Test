@@ -39,18 +39,13 @@ namespace Project.Scripts.Services.EventBusSystem
 
         public readonly struct MoveCountChangedEvent
         {
-            public int Remaining { get; }
+            public int MovesUsed { get; }
 
 
-            public MoveCountChangedEvent(int remaining)
+            public MoveCountChangedEvent(int movesUsed)
             {
-                Remaining = remaining;
+                MovesUsed = movesUsed;
             }
-        }
-
-        public readonly struct OutOfMovesEvent
-        {
-
         }
 
         public readonly struct EnemyHPChangedEvent

@@ -26,6 +26,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46853c594e257054baaee71fc76fa00b, type: 2}
   - {fileID: 11400000, guid: 438f2a2ac5c21944a9de839fc3622991, type: 2}
   - {fileID: 11400000, guid: dc1cae93b0911fd4facc660a6f3387b9, type: 2}
-  _moveLimit: 15
   _enemyHP: 600
   _goalType: 0

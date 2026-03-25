@@ -18,7 +18,6 @@ namespace Project.Scripts.Configs
         [SerializeField] private TileConfig[] _regularTiles;
         [SerializeField] private TileConfig[] _specialTiles;
         [Header("Combat")]
-        [SerializeField] private int _moveLimit = 30;
         [SerializeField] private int _enemyHP = 100;
         [SerializeField] private LevelGoalType _goalType = LevelGoalType.DamageBased;
 
@@ -28,7 +27,6 @@ namespace Project.Scripts.Configs
         public int Height => _height;
         public TileConfig[] RegularTiles => _regularTiles;
         public TileConfig[] SpecialTiles => _specialTiles;
-        public int MoveLimit => _moveLimit;
         public int EnemyHP => _enemyHP;
         public LevelGoalType GoalType => _goalType;
     }

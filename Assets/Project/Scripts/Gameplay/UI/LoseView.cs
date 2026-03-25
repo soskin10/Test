@@ -17,7 +17,7 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override UniTask OnBindViewModel()
         {
-            _messageText.text = "No moves left!";
+            _messageText.text = "You lost!";
             _retryButton.onClick.AddListener(ViewModel.Retry);
             return UniTask.CompletedTask;
         }

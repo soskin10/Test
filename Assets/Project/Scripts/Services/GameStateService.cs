@@ -14,14 +14,12 @@ namespace Project.Scripts.Services
         private readonly EventBus _eventBus;
         private readonly ReactiveProperty<GameState> _state = new(GameState.Playing);
         private IDisposable _winSub;
-        private IDisposable _loseSub;
 
 
         public GameStateService(EventBus eventBus)
         {
             _eventBus = eventBus;
             _winSub = _eventBus.Subscribe<EnemyDefeatedEvent>(OnEnemyDefeated);
-            _loseSub = _eventBus.Subscribe<OutOfMovesEvent>(OnOutOfMoves);
         }
 
 
@@ -33,7 +31,6 @@ namespace Project.Scripts.Services
         public void Dispose()
         {
             _winSub?.Dispose();
-            _loseSub?.Dispose();
             _state.Dispose();
         }
 
@@ -42,12 +39,6 @@ namespace Project.Scripts.Services
         {
             if (IsPlaying)
                 SetState(GameState.Win);
-        }
-
-        private void OnOutOfMoves(OutOfMovesEvent _)
-        {
-            if (IsPlaying)
-                SetState(GameState.Lose);
         }
     }
 }

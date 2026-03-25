@@ -8,7 +8,7 @@ namespace Project.Scripts.Gameplay.UI
 {
     public class WinViewModel : BaseViewModel
     {
-        public int MovesRemaining { get; private set; }
+        public int MovesUsed { get; private set; }
         public int TotalDamage { get; private set; }
 
 
@@ -40,7 +40,7 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override UniTask OnInitializeAsync()
         {
-            MovesRemaining = _moveCounter.RemainingMoves;
+            MovesUsed = _moveCounter.MovesUsed;
             TotalDamage = _enemyState.MaxHP;
             return UniTask.CompletedTask;
         }

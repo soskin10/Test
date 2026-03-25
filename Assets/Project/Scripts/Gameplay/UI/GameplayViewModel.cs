@@ -13,14 +13,12 @@ namespace Project.Scripts.Gameplay.UI
     {
         private readonly EventBus _eventBus;
         private readonly IEnemyStateService _enemyState;
-        private readonly IMoveCounterService _moveCounter;
         private readonly LevelConfig _levelConfig;
         private readonly IEnergyService _energyService;
 
 
         public ReactiveProperty<int> LastDamage { get; } = new(0);
         public ReactiveProperty<int> EnemyHP { get; } = new(0);
-        public ReactiveProperty<int> MovesLeft { get; } = new(0);
         public int CurrentLevel { get; private set; }
         public ReactiveProperty<float> FireEnergy { get; } = new(0f);
         public ReactiveProperty<float> WaterEnergy { get; } = new(0f);
@@ -29,12 +27,11 @@ namespace Project.Scripts.Gameplay.UI
         public ReactiveProperty<float> VoidEnergy { get; } = new(0f);
 
 
-        public GameplayViewModel(EventBus eventBus, IEnemyStateService enemyState, IMoveCounterService moveCounter,
+        public GameplayViewModel(EventBus eventBus, IEnemyStateService enemyState,
             LevelConfig levelConfig, IEnergyService energyService)
         {
             _eventBus = eventBus;
             _enemyState = enemyState;
-            _moveCounter = moveCounter;
             _levelConfig = levelConfig;
             _energyService = energyService;
         }
@@ -44,13 +41,11 @@ namespace Project.Scripts.Gameplay.UI
         {
             CurrentLevel = _levelConfig.LevelId;
             EnemyHP.Value = _enemyState.CurrentHP;
-            MovesLeft.Value = _moveCounter.RemainingMoves;
 
             Disposables.Add(_eventBus.Subscribe<DamageDealtEvent>(OnDamageDealt));
             Disposables.Add(_eventBus.Subscribe<EnemyHPChangedEvent>(OnEnemyHPChanged));
-            Disposables.Add(_eventBus.Subscribe<MoveCountChangedEvent>(OnMoveCountChanged));
             Disposables.Add(_eventBus.Subscribe<EnergyChangedEvent>(OnEnergyChanged));
-            
+
             return UniTask.CompletedTask;
         }
 
@@ -58,7 +53,6 @@ namespace Project.Scripts.Gameplay.UI
         {
             LastDamage.Dispose();
             EnemyHP.Dispose();
-            MovesLeft.Dispose();
             FireEnergy.Dispose();
             WaterEnergy.Dispose();
             NatureEnergy.Dispose();
@@ -70,8 +64,6 @@ namespace Project.Scripts.Gameplay.UI
         private void OnDamageDealt(DamageDealtEvent e) => LastDamage.Value = e.Total;
 
         private void OnEnemyHPChanged(EnemyHPChangedEvent e) => EnemyHP.Value = e.Current;
-
-        private void OnMoveCountChanged(MoveCountChangedEvent e) => MovesLeft.Value = e.Remaining;
 
         private void OnEnergyChanged(EnergyChangedEvent e)
         {
