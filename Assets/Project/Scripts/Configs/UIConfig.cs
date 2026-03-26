@@ -17,10 +17,14 @@ namespace Project.Scripts.Configs
         [Tooltip("Prefab containing the MoveBarView component — docked to the bottom of the screen")]
         [SerializeField] private GameObject _moveBarViewPrefab;
 
+        [Tooltip("Prefab containing the BattleHUDView component — shows player and enemy avatars with HP bars")]
+        [SerializeField] private GameObject _battleHUDViewPrefab;
+
 
         public GameObject GameplayViewPrefab => _gameplayViewPrefab;
         public GameObject WinViewPrefab => _winViewPrefab;
         public GameObject LoseViewPrefab => _loseViewPrefab;
         public GameObject MoveBarViewPrefab => _moveBarViewPrefab;
+        public GameObject BattleHUDViewPrefab => _battleHUDViewPrefab;
     }
 }

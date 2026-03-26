@@ -17,6 +17,7 @@ namespace Project.Scripts.Configs
         [SerializeField] private UIConfig _uiConfig;
         [SerializeField] private EnergyConfig _energyConfig;
         [SerializeField] private MoveBarConfig _moveBarConfig;
+        [SerializeField] private BattleHUDConfig _battleHUDConfig;
 
 
         public AudioMusicConfig AudioMusicConfig => _audioMusicConfig;
@@ -30,5 +31,6 @@ namespace Project.Scripts.Configs
         public UIConfig UIConfig => _uiConfig;
         public EnergyConfig EnergyConfig => _energyConfig;
         public MoveBarConfig MoveBarConfig => _moveBarConfig;
+        public BattleHUDConfig BattleHUDConfig => _battleHUDConfig;
     }
 }

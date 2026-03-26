@@ -43,6 +43,7 @@ namespace Project.Scripts.Gameplay
         private IGameStateService _gameStateService;
         private IMoveBarService _moveBarService;
         private GameResultPresenter _gameResultPresenter;
+        private BattleHUDViewModel _battleHUDViewModel;
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
         private GameAudioController _gameAudioController;
@@ -68,6 +69,7 @@ namespace Project.Scripts.Gameplay
         {
             _uiService?.Close<GameplayView>();
             _uiService?.Close<MoveBarView>();
+            _uiService?.Close<BattleHUDView>();
             _swapHandler?.Dispose();
             _inputService?.Dispose();
         }
@@ -89,7 +91,8 @@ namespace Project.Scripts.Gameplay
             MoveBarViewModel moveBarViewModel,
             IGameStateService gameStateService,
             IMoveBarService moveBarService,
-            GameResultPresenter gameResultPresenter)
+            GameResultPresenter gameResultPresenter,
+            BattleHUDViewModel battleHUDViewModel)
         {
             _eventBus = eventBus;
             _audioService = audioService;
@@ -106,6 +109,7 @@ namespace Project.Scripts.Gameplay
             _gameStateService = gameStateService;
             _moveBarService = moveBarService;
             _gameResultPresenter = gameResultPresenter;
+            _battleHUDViewModel = battleHUDViewModel;
         }
 
 
@@ -115,6 +119,7 @@ namespace Project.Scripts.Gameplay
 
             _uiService.RegisterView<GameplayView>(_uiConfig.GameplayViewPrefab, UILayer.Main);
             _uiService.RegisterView<MoveBarView>(_uiConfig.MoveBarViewPrefab, UILayer.Main);
+            _uiService.RegisterView<BattleHUDView>(_uiConfig.BattleHUDViewPrefab, UILayer.Main);
 
             await _uiService.Show<GameplayView, GameplayViewModel>(_gameplayViewModel);
             await _uiService.Show<MoveBarView, MoveBarViewModel>(_moveBarViewModel);
@@ -122,6 +127,10 @@ namespace Project.Scripts.Gameplay
             var cellSize = ComputeCellSize();
             var boardCenter = ComputeBoardCenter(cellSize);
             _boardView.transform.position = boardCenter;
+
+            var boardTopWorldY = boardCenter.y + _levelConfig.Height * cellSize * 0.5f;
+            _battleHUDViewModel.SetBoardTopWorldY(boardTopWorldY);
+            await _uiService.Show<BattleHUDView, BattleHUDViewModel>(_battleHUDViewModel);
 
             var pool = new TilePool(_boardConfig.TilePrefab, _tileContainer, _animConfig, cellSize, _boardConfig.TileScale);
             var matchFinder = new MatchFinder(_boardConfig.MinMatchLength);

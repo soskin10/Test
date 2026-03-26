@@ -16,3 +16,4 @@ MonoBehaviour:
   _winViewPrefab: {fileID: 6513608689272358209, guid: ef1cef739955fc14b8a6840198e2658e, type: 3}
   _loseViewPrefab: {fileID: 1476658943196127826, guid: 1f41be8b68c02944a8ffc5c753dc2209, type: 3}
   _moveBarViewPrefab: {fileID: 4956103731270986490, guid: 23f4f8141cbd9ab49ba8e0e8efffadb8, type: 3}
+  _battleHUDViewPrefab: {fileID: 2541180038541900123, guid: f38e8bfa5c172bc4f99cdf74dc95fbb0, type: 3}

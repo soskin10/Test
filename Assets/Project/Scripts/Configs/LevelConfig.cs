@@ -11,14 +11,30 @@ namespace Project.Scripts.Configs
     public class LevelConfig : ScriptableObject
     {
         [Header("Level")]
+        [Tooltip("Unique numeric identifier for this level, used by LevelDatabase lookups")]
         [SerializeField] private int _levelId = 1;
+
         [Header("Board")]
+        [Tooltip("Number of tile columns on the board")]
         [SerializeField] private int _width = 8;
+
+        [Tooltip("Number of tile rows on the board")]
         [SerializeField] private int _height = 8;
+
+        [Tooltip("Tile types that can appear as ordinary matches on this board")]
         [SerializeField] private TileConfig[] _regularTiles;
+
+        [Tooltip("Tile types that can appear as special (power-up) tiles on this board")]
         [SerializeField] private TileConfig[] _specialTiles;
+
         [Header("Combat")]
+        [Tooltip("Starting HP of the player avatar for this level")]
+        [SerializeField] private int _playerHP = 100;
+
+        [Tooltip("Starting HP of the enemy avatar for this level")]
         [SerializeField] private int _enemyHP = 100;
+
+        [Tooltip("Win condition type — DamageBased means the player wins by reducing enemy HP to zero")]
         [SerializeField] private LevelGoalType _goalType = LevelGoalType.DamageBased;
 
 
@@ -27,6 +43,7 @@ namespace Project.Scripts.Configs
         public int Height => _height;
         public TileConfig[] RegularTiles => _regularTiles;
         public TileConfig[] SpecialTiles => _specialTiles;
+        public int PlayerHP => _playerHP;
         public int EnemyHP => _enemyHP;
         public LevelGoalType GoalType => _goalType;
     }

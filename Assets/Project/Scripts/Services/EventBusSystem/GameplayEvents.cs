@@ -92,6 +92,19 @@ namespace Project.Scripts.Services.EventBusSystem
             }
         }
 
+        public readonly struct PlayerHPChangedEvent
+        {
+            public int Current { get; }
+            public int Max { get; }
+
+
+            public PlayerHPChangedEvent(int current, int max)
+            {
+                Current = current;
+                Max = max;
+            }
+        }
+
         public readonly struct SwapRejectedEvent
         {
 
