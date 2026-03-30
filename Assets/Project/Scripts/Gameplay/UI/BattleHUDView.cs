@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Services.UISystem;
 using R3;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Pool;
 using UnityEngine.UI;
@@ -12,6 +13,9 @@ namespace Project.Scripts.Gameplay.UI
         [Header("Top")]
         [Tooltip("Container for TopBar and EnemyPanel — receives safe area top offset")]
         [SerializeField] private RectTransform _topContainer;
+
+        [Tooltip("Text displaying the enemy opponent name in the top bar")]
+        [SerializeField] private TMP_Text _enemyNameText;
 
         [Header("Enemy")]
         [Tooltip("Image displaying the enemy avatar portrait")]
@@ -68,6 +72,9 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override UniTask OnBindViewModel()
         {
+            if (_enemyNameText)
+                _enemyNameText.text = ViewModel.EnemyName;
+
             if (_enemyAvatar)
                 _enemyAvatar.sprite = ViewModel.EnemyAvatarSprite;
             if (_playerAvatar)
@@ -142,6 +149,12 @@ namespace Project.Scripts.Gameplay.UI
 #endif
 
             return UniTask.CompletedTask;
+        }
+
+        protected override void OnClose()
+        {
+            _floatingPool?.Dispose();
+            _floatingPool = null;
         }
 
 

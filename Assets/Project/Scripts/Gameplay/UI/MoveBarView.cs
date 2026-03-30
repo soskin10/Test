@@ -29,6 +29,7 @@ namespace Project.Scripts.Gameplay.UI
         private Canvas _canvas;
         private bool _isOverlay;
         private RectTransform _referenceRect;
+        private Tween _shakeTween;
 #if UNITY_EDITOR
         private bool _rebuildPending;
 #endif
@@ -75,6 +76,8 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override void OnClose()
         {
+            _shakeTween?.Kill();
+            _shakeTween = null;
             KillBlinkTweens();
         }
         
@@ -169,6 +172,7 @@ namespace Project.Scripts.Gameplay.UI
                 for (var i = _previousMoves; i < newMoves && i < _segments.Count; i++)
                 {
                     DOTween.Kill(_segments[i]);
+                    DOTween.Kill(_segments[i].transform);
                     var c = _segments[i].color;
                     c.a = 1f;
                     _segments[i].color = c;
@@ -216,8 +220,8 @@ namespace Project.Scripts.Gameplay.UI
 
         private void ShakeBar()
         {
-            DOTween.Kill(transform, complete: true);
-            transform.DOShakePosition(
+            _shakeTween?.Kill(complete: true);
+            _shakeTween = transform.DOShakePosition(
                 ViewModel.Config.EmptyShakeDuration,
                 new Vector3(ViewModel.Config.EmptyShakeStrength, 0f, 0f),
                 vibrato: 10,

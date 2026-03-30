@@ -16,6 +16,7 @@ namespace Project.Scripts.Services.BoardEdit
         private float _cellSize;
         private GameObject _overlayGo;
         private LineRenderer _overlay;
+        private Tween _overlayTween;
 
 
         public void Init(IGridState state, IGridView view, LevelConfig levelConfig, float cellSize)
@@ -93,7 +94,7 @@ namespace Project.Scripts.Services.BoardEdit
             var fadeColor = new Color(0.2f, 1f, 0.4f, 0.25f);
             _overlay.startColor = _overlay.endColor = baseColor;
 
-            DOTween.To(
+            _overlayTween = DOTween.To(
                 () => _overlay.startColor,
                 c => { _overlay.startColor = c; _overlay.endColor = c; },
                 fadeColor,
@@ -106,7 +107,8 @@ namespace Project.Scripts.Services.BoardEdit
             if (false == _overlayGo)
                 return;
 
-            DOTween.Kill(_overlay);
+            _overlayTween?.Kill();
+            _overlayTween = null;
             Destroy(_overlayGo);
             _overlayGo = null;
             _overlay = null;

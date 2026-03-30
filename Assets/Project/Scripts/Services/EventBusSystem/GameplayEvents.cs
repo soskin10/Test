@@ -140,6 +140,22 @@ namespace Project.Scripts.Services.EventBusSystem
             }
         }
 
+        public readonly struct EnemyAttackEvent
+        {
+            public int Damage { get; }
+
+
+            public EnemyAttackEvent(int damage)
+            {
+                Damage = damage;
+            }
+        }
+
+        public readonly struct PlayerDefeatedEvent
+        {
+
+        }
+
         public readonly struct SwapRejectedEvent
         {
 

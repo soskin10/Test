@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Hero_Water_B_Config
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.HeroConfig
   _kind: 11
-  _maxEnergy: 15
+  _maxEnergy: 17
   _actionType: 1
-  _actionValue: 12
+  _actionValue: 34
   _portrait: {fileID: 0}
   _displayName: 

@@ -10,6 +10,8 @@ namespace Project.Scripts.Gameplay.UI
     {
         public int MovesUsed { get; private set; }
         public int TotalDamage { get; private set; }
+        public int LevelId { get; private set; }
+        public string OpponentName { get; private set; }
 
 
         private readonly IMoveCounterService _moveCounter;
@@ -22,11 +24,15 @@ namespace Project.Scripts.Gameplay.UI
             IMoveCounterService moveCounter,
             IEnemyStateService enemyState,
             ILevelProgressionService progression,
+            int levelId,
+            string opponentName,
             Action onClose)
         {
             _moveCounter = moveCounter;
             _enemyState = enemyState;
             _progression = progression;
+            LevelId = levelId;
+            OpponentName = opponentName;
             _onClose = onClose;
         }
 

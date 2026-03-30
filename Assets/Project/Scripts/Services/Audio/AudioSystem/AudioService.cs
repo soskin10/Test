@@ -22,6 +22,7 @@ namespace Project.Scripts.Services.Audio.AudioSystem
         private readonly Dictionary<string, CancellationTokenSource> _sfxCancellationTokens = new();
         private readonly Dictionary<string, bool> _groupPaused = new();
         private readonly Dictionary<string, string> _currentPlayingGroups = new();
+        private readonly Dictionary<string, List<AudioSource>> _dynamicGroupSources = new();
         
         
         public AudioService(AudioMusicConfig audioMusicConfig, 
@@ -35,7 +36,24 @@ namespace Project.Scripts.Services.Audio.AudioSystem
 
         public void Dispose()
         {
-            
+            foreach (var cts in _groupCancellationTokens.Values)
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+            _groupCancellationTokens.Clear();
+
+            foreach (var cts in _sfxCancellationTokens.Values)
+            {
+                cts.Cancel();
+                cts.Dispose();
+            }
+            _sfxCancellationTokens.Clear();
+
+            foreach (var sources in _dynamicGroupSources.Values)
+                foreach (var source in sources)
+                    UnityEngine.Object.Destroy(source);
+            _dynamicGroupSources.Clear();
         }
         
         public void PlayGroup(string groupTag, bool shuffle = false, float fade = 0f)
@@ -49,7 +67,6 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             }
             
             var clips = new List<AudioClipData>(group.Clips);
-            
             if (clips.Count == 0)
             {
                 Debug.LogError($"AudioGroupConfig '{groupTag}' has no clips.");
@@ -103,8 +120,8 @@ namespace Project.Scripts.Services.Audio.AudioSystem
                 
                 return;
             }
-            var source1 = CreateBGMSource();
-            var source2 = CreateBGMSource();
+            var source1 = CreateBGMSource(groupTag);
+            var source2 = CreateBGMSource(groupTag);
             var currentSource = source1;
             var nextSource = source2;
             var currentTargetVolume = 0f;
@@ -203,12 +220,15 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             } while (loop && !token.IsCancellationRequested);
         }
 
-        private AudioSource CreateBGMSource()
+        private AudioSource CreateBGMSource(string groupTag)
         {
             var newSource = _audioManager.gameObject.AddComponent<AudioSource>();
             newSource.playOnAwake = false;
             newSource.loop = false;
             newSource.outputAudioMixerGroup = _audioManager.MusicMixerGroup;
+            if (!_dynamicGroupSources.ContainsKey(groupTag))
+                _dynamicGroupSources[groupTag] = new List<AudioSource>();
+            _dynamicGroupSources[groupTag].Add(newSource);
             return newSource;
         }
 
@@ -268,7 +288,15 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             if (_groupCancellationTokens.TryGetValue(groupTag, out var cts))
             {
                 cts.Cancel();
+                cts.Dispose();
                 _groupCancellationTokens.Remove(groupTag);
+            }
+
+            if (_dynamicGroupSources.TryGetValue(groupTag, out var sources))
+            {
+                foreach (var dynamicSource in sources)
+                    UnityEngine.Object.Destroy(dynamicSource);
+                _dynamicGroupSources.Remove(groupTag);
             }
             if (_activeSources.TryGetValue(groupTag, out var source))
             {
@@ -287,6 +315,7 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             else if (_sfxCancellationTokens.TryGetValue(soundTag, out var cts))
             {
                 cts.Cancel();
+                cts.Dispose();
                 _sfxCancellationTokens.Remove(soundTag);
             }
             if (_activeSources.TryGetValue(soundTag, out var source))

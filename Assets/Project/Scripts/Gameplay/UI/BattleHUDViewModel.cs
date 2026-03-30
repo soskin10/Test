@@ -43,6 +43,7 @@ namespace Project.Scripts.Gameplay.UI
         public float BoardCenterX => _boardBounds.BoardCenterX;
         public HeroSlotViewModel[] PlayerHeroSlots => _playerHeroSlots;
         public HeroSlotViewModel[] EnemyHeroSlots => _enemyHeroSlots;
+        public string EnemyName => _levelConfig.BotConfig ? _levelConfig.BotConfig.OpponentName : string.Empty;
 
 
         public BattleHUDViewModel(

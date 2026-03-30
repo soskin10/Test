@@ -5,5 +5,6 @@ namespace Project.Scripts.Services.Combat
         int CurrentHP { get; }
         int MaxHP { get; }
         void Heal(int amount);
+        void TakeDamage(int amount);
     }
 }

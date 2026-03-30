@@ -18,6 +18,13 @@ namespace Project.Scripts.Gameplay.UI
         private Tweener _hpBarTween;
         private Tweener _lagTween;
 
+        
+        private void OnDestroy()
+        {
+            _hpBarTween?.Kill();
+            _lagTween?.Kill();
+        }
+        
 
         public void Init(BattleAnimationConfig config)
         {
@@ -70,8 +77,9 @@ namespace Project.Scripts.Gameplay.UI
                 ? _hpBar.DOFillAmount(newFill, _config.HPBarHealDuration).SetEase(_config.HPBarHealEase)
                 : null;
 
-            if (_lagBar)
-                _lagBar.DOFillAmount(newFill, _config.HPBarHealDuration).SetEase(_config.HPBarHealEase);
+            _lagTween = _lagBar
+                ? _lagBar.DOFillAmount(newFill, _config.HPBarHealDuration).SetEase(_config.HPBarHealEase)
+                : null;
         }
 
         private void AnimateLagBar(float targetFill)

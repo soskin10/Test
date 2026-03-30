@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: LevelConfig_04
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.LevelConfig
   _levelId: 4
-  _width: 8
-  _height: 8
+  _width: 7
+  _height: 7
   _regularTiles:
   - {fileID: 11400000, guid: 45e3651fed728ad4487420bf9819b91a, type: 2}
   - {fileID: 11400000, guid: 1119a0ba92910f542a294d24513a6914, type: 2}
@@ -26,8 +26,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46853c594e257054baaee71fc76fa00b, type: 2}
   - {fileID: 11400000, guid: 438f2a2ac5c21944a9de839fc3622991, type: 2}
   - {fileID: 11400000, guid: dc1cae93b0911fd4facc660a6f3387b9, type: 2}
-  _playerHP: 100
-  _enemyHP: 500
+  _playerHP: 400
+  _enemyHP: 400
   _goalType: 0
   _playerHeroes:
   - {fileID: 11400000, guid: d58a5fe3509de434a98e96d78ae26093, type: 2}
@@ -39,3 +39,4 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3d542b16d75e51845b176c4f00806ac9, type: 2}
   - {fileID: 11400000, guid: fa0aaf68376b121419125f776a10be55, type: 2}
   - {fileID: 11400000, guid: c40684606f95ebb41b02fac1f62d500d, type: 2}
+  _botConfig: {fileID: 11400000, guid: e08640440e2033e4489542e45deb29d0, type: 2}

@@ -15,6 +15,6 @@ MonoBehaviour:
   _kind: 10
   _maxEnergy: 20
   _actionType: 0
-  _actionValue: 45
+  _actionValue: 40
   _portrait: {fileID: 0}
   _displayName: 

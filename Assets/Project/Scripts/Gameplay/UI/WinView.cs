@@ -14,14 +14,25 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("Text displaying the total damage dealt to the enemy")]
         [SerializeField] private TMP_Text _damageText;
 
+        [Tooltip("Text displaying the current level ID")]
+        [SerializeField] private TMP_Text _levelIdText;
+
+        [Tooltip("Text displaying the defeated opponent's name")]
+        [SerializeField] private TMP_Text _opponentNameText;
+
         [Tooltip("Button that advances to the next level")]
         [SerializeField] private Button _nextLevelButton;
 
 
+        protected override bool EnablePumpAnimation => true;
+
+
         protected override UniTask OnBindViewModel()
         {
-            _movesText.text = $"Moves used: {ViewModel.MovesUsed}";
-            _damageText.text = $"Total damage: {ViewModel.TotalDamage}";
+            _movesText.text = ViewModel.MovesUsed.ToString();
+            _damageText.text = ViewModel.TotalDamage.ToString();
+            _levelIdText.text = ViewModel.LevelId.ToString();
+            _opponentNameText.text = ViewModel.OpponentName;
             _nextLevelButton.onClick.AddListener(ViewModel.NextLevel);
             return UniTask.CompletedTask;
         }

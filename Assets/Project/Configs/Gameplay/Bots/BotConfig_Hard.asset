@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 810ece28b9025cb45b548c7fdfc48fd5, type: 3}
+  m_Name: BotConfig_Hard
+  m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.BotConfig
+  _enabled: 1
+  _opponentName: Hard
+  _minAttackInterval: 1.3
+  _maxAttackInterval: 2.8
+  _minAttackDamage: 12
+  _maxAttackDamage: 29
+  _heroEnergyTickInterval: 0.4
+  _heroEnergyPerTick: 2
+  _minHeroActivationDelay: 0.5
+  _maxHeroActivationDelay: 2.5
+  _randomHeroSelection: 1
+  _heroPool:
+  - {fileID: 11400000, guid: d58a5fe3509de434a98e96d78ae26093, type: 2}
+  - {fileID: 11400000, guid: c40684606f95ebb41b02fac1f62d500d, type: 2}
+  - {fileID: 11400000, guid: 61f01c2b0835d6e4fb98d33e57b239d1, type: 2}
+  - {fileID: 11400000, guid: fa0aaf68376b121419125f776a10be55, type: 2}
+  - {fileID: 11400000, guid: 3d542b16d75e51845b176c4f00806ac9, type: 2}
+  - {fileID: 11400000, guid: 0f3d3fa3eb654c94a8971358e409f27b, type: 2}
+  - {fileID: 11400000, guid: 6b9f0efe56a08824d8b66232e39a62cb, type: 2}
+  - {fileID: 11400000, guid: c8ec46ccd00eb674d82381d1407f7402, type: 2}
+  - {fileID: 11400000, guid: 395207d8bdb6b31448032eb6bbb44c01, type: 2}
+  - {fileID: 11400000, guid: 38102afed9687614cbff9a032e86af90, type: 2}

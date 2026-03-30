@@ -715,6 +715,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Gameplay.UI.BattleHUDView
   _topContainer: {fileID: 5380692693338551777}
+  _enemyNameText: {fileID: 1721049324397081671}
   _enemyAvatar: {fileID: 1590269457612796299}
   _enemyHPBar: {fileID: 7562250200729996287}
   _enemyHitReaction: {fileID: 8484169324732000024}

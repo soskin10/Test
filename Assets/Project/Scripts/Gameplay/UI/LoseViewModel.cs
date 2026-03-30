@@ -1,18 +1,38 @@
 using System;
+using Cysharp.Threading.Tasks;
 using Project.Scripts.Services;
+using Project.Scripts.Services.Combat;
 using Project.Scripts.Services.UISystem;
 
 namespace Project.Scripts.Gameplay.UI
 {
     public class LoseViewModel : BaseViewModel
     {
+        public int MovesUsed { get; private set; }
+        public int TotalDamage { get; private set; }
+        public int LevelId { get; }
+        public string OpponentName { get; }
+
+
+        private readonly IMoveCounterService _moveCounter;
+        private readonly IEnemyStateService _enemyState;
         private readonly ILevelProgressionService _progression;
         private readonly Action _onClose;
 
 
-        public LoseViewModel(ILevelProgressionService progression, Action onClose)
+        public LoseViewModel(
+            IMoveCounterService moveCounter,
+            IEnemyStateService enemyState,
+            ILevelProgressionService progression,
+            int levelId,
+            string opponentName,
+            Action onClose)
         {
+            _moveCounter = moveCounter;
+            _enemyState = enemyState;
             _progression = progression;
+            LevelId = levelId;
+            OpponentName = opponentName;
             _onClose = onClose;
         }
 
@@ -21,6 +41,14 @@ namespace Project.Scripts.Gameplay.UI
         {
             _onClose?.Invoke();
             _progression.Retry();
+        }
+
+
+        protected override UniTask OnInitializeAsync()
+        {
+            MovesUsed = _moveCounter.MovesUsed;
+            TotalDamage = _enemyState.MaxHP;
+            return UniTask.CompletedTask;
         }
     }
 }

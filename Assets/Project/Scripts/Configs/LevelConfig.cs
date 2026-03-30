@@ -42,8 +42,13 @@ namespace Project.Scripts.Configs
         [Tooltip("Four hero configs for the player side (null slot = empty)")]
         [SerializeField] private HeroConfig[] _playerHeroes = new HeroConfig[4];
 
-        [Tooltip("Four hero configs for the enemy side (null slot = empty)")]
+        [Tooltip("Four hero configs for the enemy side; used when BotConfig.RandomHeroSelection is false")]
         [SerializeField] private HeroConfig[] _enemyHeroes = new HeroConfig[4];
+
+        // TODO: replace with matchmaking opponent data when lobby is implemented
+        [Header("Bot (temporary - will be replaced by lobby opponent)")]
+        [Tooltip("Bot settings for this level; null means no bot (reserved for real PvP)")]
+        [SerializeField] private BotConfig _botConfig;
 
 
         public int LevelId => _levelId;
@@ -56,5 +61,6 @@ namespace Project.Scripts.Configs
         public LevelGoalType GoalType => _goalType;
         public HeroConfig[] PlayerHeroes => _playerHeroes;
         public HeroConfig[] EnemyHeroes => _enemyHeroes;
+        public BotConfig BotConfig => _botConfig;
     }
 }

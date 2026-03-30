@@ -18,6 +18,7 @@ namespace Project.Scripts.Gameplay
         private readonly IEnemyStateService _enemyState;
         private readonly ILevelProgressionService _progression;
         private readonly BattleAnimationConfig _battleAnimConfig;
+        private readonly LevelConfig _levelConfig;
 
 
         private IDisposable _stateSub;
@@ -30,7 +31,8 @@ namespace Project.Scripts.Gameplay
             IMoveCounterService moveCounter,
             IEnemyStateService enemyState,
             ILevelProgressionService progression,
-            BattleAnimationConfig battleAnimConfig)
+            BattleAnimationConfig battleAnimConfig,
+            LevelConfig levelConfig)
         {
             _gameStateService = gameStateService;
             _uiService = uiService;
@@ -39,6 +41,7 @@ namespace Project.Scripts.Gameplay
             _enemyState = enemyState;
             _progression = progression;
             _battleAnimConfig = battleAnimConfig;
+            _levelConfig = levelConfig;
         }
 
 
@@ -67,7 +70,10 @@ namespace Project.Scripts.Gameplay
         private async UniTaskVoid ShowWin()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(_battleAnimConfig.ResultScreenDelay));
+            var bot = _levelConfig.BotConfig;
             var viewModel = new WinViewModel(_moveCounter, _enemyState, _progression,
+                _levelConfig.LevelId,
+                bot ? bot.OpponentName : string.Empty,
                 () => _uiService.Close<WinView>());
             await _uiService.Show<WinView, WinViewModel>(viewModel);
         }
@@ -75,7 +81,10 @@ namespace Project.Scripts.Gameplay
         private async UniTaskVoid ShowLose()
         {
             await UniTask.Delay(TimeSpan.FromSeconds(_battleAnimConfig.ResultScreenDelay));
-            var viewModel = new LoseViewModel(_progression,
+            var bot = _levelConfig.BotConfig;
+            var viewModel = new LoseViewModel(_moveCounter, _enemyState, _progression,
+                _levelConfig.LevelId,
+                bot ? bot.OpponentName : string.Empty,
                 () => _uiService.Close<LoseView>());
             await _uiService.Show<LoseView, LoseViewModel>(viewModel);
         }

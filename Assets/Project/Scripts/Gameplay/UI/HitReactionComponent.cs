@@ -19,7 +19,19 @@ namespace Project.Scripts.Gameplay.UI
 
         private BattleAnimationConfig _config;
         private Color _portraitBaseColor;
+        private float _restY;
+        private bool _restYCaptured;
+        private Sequence _flashSequence;
+        private Sequence _knockbackSequence;
 
+        
+        private void OnDestroy()
+        {
+            _flashSequence?.Kill();
+            _knockbackSequence?.Kill();
+        }
+        
+        
 
         public void Init(BattleAnimationConfig config)
         {
@@ -42,9 +54,9 @@ namespace Project.Scripts.Gameplay.UI
             if (!_portrait)
                 return;
 
-            _portrait.DOKill();
+            _flashSequence?.Kill();
             var halfDuration = _config.HitFlashDuration * 0.5f;
-            DOTween.Sequence()
+            _flashSequence = DOTween.Sequence()
                 .Append(_portrait.DOColor(_config.HitFlashColor, halfDuration).SetEase(_config.HitFlashEase))
                 .Append(_portrait.DOColor(_portraitBaseColor, halfDuration).SetEase(_config.HitFlashEase));
         }
@@ -55,12 +67,17 @@ namespace Project.Scripts.Gameplay.UI
             if (!rect)
                 return;
 
-            rect.DOKill();
-            var startY = rect.anchoredPosition.y;
+            if (!_restYCaptured)
+            {
+                _restY = rect.anchoredPosition.y;
+                _restYCaptured = true;
+            }
+
+            _knockbackSequence?.Kill();
             var halfDuration = _config.KnockbackDuration * 0.5f;
-            DOTween.Sequence()
-                .Append(rect.DOAnchorPosY(startY + _knockbackDirectionSign * _config.KnockbackDistance, halfDuration).SetEase(_config.KnockbackEase))
-                .Append(rect.DOAnchorPosY(startY, halfDuration).SetEase(_config.KnockbackEase));
+            _knockbackSequence = DOTween.Sequence()
+                .Append(rect.DOAnchorPosY(_restY + _knockbackDirectionSign * _config.KnockbackDistance, halfDuration).SetEase(_config.KnockbackEase))
+                .Append(rect.DOAnchorPosY(_restY, halfDuration).SetEase(_config.KnockbackEase));
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Behaviours;
@@ -18,7 +19,7 @@ using UnityEngine;
 
 namespace Project.Scripts.Services
 {
-    public class BoardOrchestrator : IBoardOrchestrator
+    public class BoardOrchestrator : IBoardOrchestrator, IDisposable
     {
         private const int ShuffleMaxAttempts = 10;
 
@@ -64,6 +65,11 @@ namespace Project.Scripts.Services
         {
             _swapHandler.OnSwapRequested += OnSwapRequested;
             return UniTask.CompletedTask;
+        }
+
+        public void Dispose()
+        {
+            _swapHandler.OnSwapRequested -= OnSwapRequested;
         }
 
         public async UniTask StartGame()
@@ -314,7 +320,14 @@ namespace Project.Scripts.Services
 
         private async UniTask ExecuteLineLineCombo(GridPoint posA, GridPoint posB)
         {
-            await _gridOps.ActivateTiles(new List<GridPoint> { posA, posB });
+            await UniTask.WhenAll(_gridOps.ConsumeTile(posA), _gridOps.ConsumeTile(posB));
+
+            var cross = new HashSet<GridPoint>(_state.GetAllInRow(posA.Y));
+            var col = _state.GetAllInColumn(posA.X);
+            for (var i = 0; i < col.Count; i++)
+                cross.Add(col[i]);
+
+            await _gridOps.ActivateTiles(new List<GridPoint>(cross));
         }
 
         private async UniTask RunPostActivationFlow(List<WaveBreakdown> waves, GridPoint pivotPosition)

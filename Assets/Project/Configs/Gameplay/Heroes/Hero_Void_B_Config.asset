@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Hero_Void_B_Config
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.HeroConfig
   _kind: 14
-  _maxEnergy: 35
+  _maxEnergy: 25
   _actionType: 1
   _actionValue: 50
   _portrait: {fileID: 0}

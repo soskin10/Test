@@ -14,16 +14,14 @@ namespace Project.Scripts.Services.Combat
 
 
         private readonly EventBus _eventBus;
-        private readonly IPlayerStateService _playerState;
         private readonly HeroSlotState[] _playerSlots = new HeroSlotState[SlotCount];
         private readonly HeroSlotState[] _enemySlots = new HeroSlotState[SlotCount];
         private IDisposable _subscription;
 
 
-        public HeroService(EventBus eventBus, LevelConfig levelConfig, IPlayerStateService playerState)
+        public HeroService(EventBus eventBus, LevelConfig levelConfig)
         {
             _eventBus = eventBus;
-            _playerState = playerState;
 
             InitSlots(_playerSlots, levelConfig.PlayerHeroes);
             InitSlots(_enemySlots, levelConfig.EnemyHeroes);
@@ -37,21 +35,42 @@ namespace Project.Scripts.Services.Combat
 
         public void TryActivate(int slotIndex)
         {
-            if (slotIndex < 0 || slotIndex >= SlotCount)
+            TryActivate(BattleSide.Player, slotIndex);
+        }
+
+        public void TryActivate(BattleSide side, int slotIndex)
+        {
+            if (slotIndex is < 0 or >= SlotCount)
                 return;
 
-            ref var slot = ref _playerSlots[slotIndex];
+            if (side == BattleSide.Player)
+                TryActivateSlot(ref _playerSlots[slotIndex], BattleSide.Player, slotIndex);
+            else
+                TryActivateSlot(ref _enemySlots[slotIndex], BattleSide.Enemy, slotIndex);
+        }
 
-            if (false == slot.IsReady)
+        public void AssignEnemyHeroes(HeroConfig[] heroes)
+        {
+            InitSlots(_enemySlots, heroes);
+
+            for (var i = 0; i < SlotCount; i++)
+                _eventBus.Publish(new HeroEnergyChangedEvent(
+                    BattleSide.Enemy, i, _enemySlots[i].CurrentEnergy, _enemySlots[i].MaxEnergy));
+        }
+
+        public void AddEnemyHeroEnergy(int slotIndex, int amount)
+        {
+            if (slotIndex is < 0 or >= SlotCount)
                 return;
 
-            _eventBus.Publish(new HeroActivatedEvent(BattleSide.Player, slotIndex, slot.ActionType, slot.ActionValue));
+            ref var slot = ref _enemySlots[slotIndex];
 
-            if (slot.ActionType == HeroActionType.HealAlly)
-                _playerState.Heal(slot.ActionValue);
+            if (false == slot.IsAssigned || amount <= 0)
+                return;
 
-            slot.CurrentEnergy = 0;
-            _eventBus.Publish(new HeroEnergyChangedEvent(BattleSide.Player, slotIndex, 0, slot.MaxEnergy));
+            slot.CurrentEnergy = Math.Min(slot.MaxEnergy, slot.CurrentEnergy + amount);
+            _eventBus.Publish(new HeroEnergyChangedEvent(
+                BattleSide.Enemy, slotIndex, slot.CurrentEnergy, slot.MaxEnergy));
         }
 
         public void Dispose()
@@ -60,6 +79,17 @@ namespace Project.Scripts.Services.Combat
             _subscription = null;
         }
 
+
+        private void TryActivateSlot(ref HeroSlotState slot, BattleSide side, int slotIndex)
+        {
+            if (false == slot.IsReady)
+                return;
+
+            _eventBus.Publish(new HeroActivatedEvent(side, slotIndex, slot.ActionType, slot.ActionValue));
+
+            slot.CurrentEnergy = 0;
+            _eventBus.Publish(new HeroEnergyChangedEvent(side, slotIndex, 0, slot.MaxEnergy));
+        }
 
         private void OnEnergyGenerated(EnergyGeneratedEvent e)
         {
@@ -80,13 +110,11 @@ namespace Project.Scripts.Services.Combat
             }
         }
 
-
         private static void InitSlots(HeroSlotState[] slots, HeroConfig[] configs)
         {
             for (var i = 0; i < SlotCount; i++)
             {
                 var config = (configs != null && i < configs.Length) ? configs[i] : null;
-
                 if (!config)
                 {
                     slots[i] = default;

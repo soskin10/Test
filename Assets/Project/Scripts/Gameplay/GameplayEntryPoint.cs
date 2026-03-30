@@ -28,6 +28,7 @@ namespace Project.Scripts.Gameplay
         [Tooltip("View component that sizes the board frame and spawn mask at runtime")]
         [SerializeField] private BoardView _boardView;
 
+        
         private EventBus _eventBus;
         private AudioService _audioService;
         private BoardConfig _boardConfig;
@@ -47,6 +48,7 @@ namespace Project.Scripts.Gameplay
         private IBoardBoundsProvider _boardBoundsProvider;
         private InputService _inputService;
         private SwapInputHandler _swapHandler;
+        private BoardOrchestrator _orchestrator;
         private GameAudioController _gameAudioController;
 
 #if UNITY_EDITOR
@@ -90,6 +92,7 @@ namespace Project.Scripts.Gameplay
             _uiService?.Close<GameplayView>();
             _uiService?.Close<MoveBarView>();
             _uiService?.Close<BattleHUDView>();
+            _orchestrator?.Dispose();
             _swapHandler?.Dispose();
             _inputService?.Dispose();
         }
@@ -179,7 +182,7 @@ namespace Project.Scripts.Gameplay
             var specialTileResolver = new SpecialTileResolver(_specialTileConfig, _levelConfig);
             var swapComboResolver = new SwapComboResolver();
 
-            var orchestrator = new BoardOrchestrator(
+            _orchestrator = new BoardOrchestrator(
                 _eventBus,
                 gridManager.State,
                 gridManager,
@@ -206,8 +209,8 @@ namespace Project.Scripts.Gameplay
 
             await _inputService.InitAsync();
             await _swapHandler.InitAsync();
-            await orchestrator.InitAsync();
-            await orchestrator.StartGame();
+            await _orchestrator.InitAsync();
+            await _orchestrator.StartGame();
         }
 
 #if UNITY_EDITOR

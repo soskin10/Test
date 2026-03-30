@@ -2,6 +2,7 @@ using Project.Scripts.Configs;
 using Project.Scripts.Gameplay;
 using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Services;
+using Project.Scripts.Services.Bot;
 using Project.Scripts.Services.Combat;
 using VContainer;
 using VContainer.Unity;
@@ -13,7 +14,8 @@ namespace Project.Scripts.DI
         protected override void Configure(IContainerBuilder builder)
         {
             var levelDatabase = Parent.Container.Resolve<LevelDatabase>();
-            builder.RegisterInstance(levelDatabase.GetById(LevelProgressionService.CurrentLevelId));
+            var levelConfig = levelDatabase.GetById(LevelProgressionService.CurrentLevelId);
+            builder.RegisterInstance(levelConfig);
 
             builder.RegisterComponentInHierarchy<GameplayEntryPoint>();
 
@@ -32,6 +34,13 @@ namespace Project.Scripts.DI
             builder.Register<GameResultPresenter>(Lifetime.Singleton);
 
             builder.Register<IBoardBoundsProvider, BoardBoundsProvider>(Lifetime.Singleton);
+
+            if (levelConfig.BotConfig)
+            {
+                builder.RegisterInstance(levelConfig.BotConfig);
+                builder.RegisterEntryPoint<BotOpponentService>().As<IBotOpponentService>();
+            }
+
         }
     }
 }

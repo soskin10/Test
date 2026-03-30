@@ -41,10 +41,10 @@ namespace Project.Scripts.Services.Combat
 
         private void OnHeroActivated(HeroActivatedEvent e)
         {
-            if (e.Side != BattleSide.Player || e.ActionType != HeroActionType.DealDamage)
-                return;
-
-            ApplyDamage(e.ActionValue);
+            if (e.Side == BattleSide.Player && e.ActionType == HeroActionType.DealDamage)
+                ApplyDamage(e.ActionValue);
+            else if (e.Side == BattleSide.Enemy && e.ActionType == HeroActionType.HealAlly)
+                ApplyHeal(e.ActionValue);
         }
 
         private void ApplyDamage(int amount)
@@ -57,6 +57,15 @@ namespace Project.Scripts.Services.Combat
 
             if (CurrentHP == 0)
                 _eventBus.Publish(new EnemyDefeatedEvent());
+        }
+
+        private void ApplyHeal(int amount)
+        {
+            if (CurrentHP >= MaxHP || amount <= 0)
+                return;
+
+            CurrentHP = Math.Min(MaxHP, CurrentHP + amount);
+            _eventBus.Publish(new EnemyHPChangedEvent(CurrentHP, MaxHP));
         }
     }
 }

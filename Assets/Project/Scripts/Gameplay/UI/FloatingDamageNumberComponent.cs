@@ -14,6 +14,12 @@ namespace Project.Scripts.Gameplay.UI
         
         private Sequence _sequence;
 
+        
+        private void OnDestroy()
+        {
+            _sequence?.Kill();
+        }
+        
 
         public void Play(int damage, RectTransform anchor, BattleAnimationConfig config, Action onDone)
         {
