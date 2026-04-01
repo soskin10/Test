@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Project.Scripts.Shared.Damage;
 using Project.Scripts.Shared.Heroes;
 using Project.Scripts.Shared.Tiles;
 
@@ -24,12 +25,13 @@ namespace Project.Scripts.Services.EventBusSystem
 
         public readonly struct DamageDealtEvent
         {
-            public int Total { get; }
+            public DamageBreakdown Breakdown { get; }
+            public int Total => Breakdown.Total;
 
 
-            public DamageDealtEvent(int total)
+            public DamageDealtEvent(DamageBreakdown breakdown)
             {
-                Total = total;
+                Breakdown = breakdown;
             }
         }
 

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Hero_Fire_A_Config
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Configs.HeroConfig
   _kind: 10
-  _maxEnergy: 20
+  _maxEnergy: 35
   _actionType: 0
-  _actionValue: 40
+  _actionValue: 87
   _portrait: {fileID: 0}
   _displayName: 

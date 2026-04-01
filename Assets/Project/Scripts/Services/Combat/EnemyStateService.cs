@@ -4,6 +4,7 @@ using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Shared.Heroes;
 using R3;
+using UnityEngine;
 
 namespace Project.Scripts.Services.Combat
 {
@@ -36,6 +37,7 @@ namespace Project.Scripts.Services.Combat
 
         private void OnPlayerDischarge(PlayerDischargeEvent e)
         {
+            Debug.Log($"[Combat] Player dealt {e.DamageAmount} dmg to enemy (HP: {CurrentHP} → {Math.Max(0, CurrentHP - e.DamageAmount)}/{MaxHP})");
             ApplyDamage(e.DamageAmount);
         }
 

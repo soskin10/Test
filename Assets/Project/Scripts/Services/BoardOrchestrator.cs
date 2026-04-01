@@ -187,8 +187,7 @@ namespace Project.Scripts.Services
                 if (waves.Count > 0 || bombDamage > 0)
                 {
                     var breakdown = new DamageBreakdown(waves, bombDamage);
-                    _eventBus.Publish(new DamageDealtEvent(breakdown.Total));
-                    Debug.Log(breakdown.ToLogString());
+                    _eventBus.Publish(new DamageDealtEvent(breakdown));
                 }
 
                 if (energyByKind.Count > 0)

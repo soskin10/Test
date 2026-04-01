@@ -4,6 +4,7 @@ using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Shared.Avatar;
 using R3;
+using UnityEngine;
 
 namespace Project.Scripts.Services.Combat
 {
@@ -36,16 +37,24 @@ namespace Project.Scripts.Services.Combat
 
         private void OnDamageDealt(DamageDealtEvent e)
         {
+            var before = _engine.Snapshot;
             var added = _engine.TryAddCharge(e.Total);
 
-            if (added > 0)
-                PublishChargeChanged();
+            if (added <= 0)
+            {
+                Debug.Log($"[PlayerCharge] Bar full ({before.CurrentCharge}/{before.MaxCharge}) — {e.Total} dmg blocked until discharge");
+                return;
+            }
+
+            var after = _engine.Snapshot;
+            Debug.Log(e.Breakdown.ToLogString());
+            Debug.Log($"[PlayerCharge] {after.CurrentCharge}/{after.MaxCharge}{(after.IsFull ? " — READY TO DISCHARGE" : string.Empty)}");
+            PublishChargeChanged();
         }
 
         private void OnPlayerAvatarActivated(PlayerAvatarActivatedEvent _)
         {
             var discharged = _engine.TryDischarge();
-
             if (discharged <= 0)
                 return;
 

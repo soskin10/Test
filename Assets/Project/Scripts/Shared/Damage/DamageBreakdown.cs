@@ -32,7 +32,7 @@ namespace Project.Scripts.Shared.Damage
         public string ToLogString()
         {
             var sb = new StringBuilder();
-            sb.AppendLine("[Damage] Move result:");
+            sb.AppendLine("[PlayerCharge] Charge added:");
 
             for (var i = 0; i < Waves.Count; i++)
             {

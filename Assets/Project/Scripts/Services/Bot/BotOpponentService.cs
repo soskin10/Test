@@ -120,18 +120,25 @@ namespace Project.Scripts.Services.Bot
                     return;
 
                 var slots = _heroService.GetSlots(BattleSide.Enemy);
-                var slotIndex = _engine.PickRandomAssignedSlot(slots);
+                var pickedIndex = _engine.PickRandomAssignedSlot(slots);
 
-                if (slotIndex < 0)
+                if (pickedIndex < 0)
                     continue;
 
-                _heroService.AddEnemyHeroEnergy(slotIndex, _botConfig.HeroEnergyPerTick);
-
-                if (_heroService.GetSlots(BattleSide.Enemy)[slotIndex].IsReady
-                    && false == _heroActivationPending[slotIndex])
+                var kind = slots[pickedIndex].Kind;
+                for (var i = 0; i < slots.Count; i++)
                 {
-                    _heroActivationPending[slotIndex] = true;
-                    ActivateWithDelay(slotIndex, ct).Forget();
+                    if (false == slots[i].IsAssigned || slots[i].Kind != kind)
+                        continue;
+
+                    _heroService.AddEnemyHeroEnergy(i, _botConfig.HeroEnergyPerTick);
+
+                    if (_heroService.GetSlots(BattleSide.Enemy)[i].IsReady
+                        && false == _heroActivationPending[i])
+                    {
+                        _heroActivationPending[i] = true;
+                        ActivateWithDelay(i, ct).Forget();
+                    }
                 }
             }
         }

@@ -269,7 +269,7 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             try
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(duration), cancellationToken: token);
-                if (false == token.IsCancellationRequested)
+                if (!token.IsCancellationRequested && source)
                 {
                     source.pitch = 1f;
                     _activeSources.Remove(soundTag);
@@ -279,7 +279,8 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             }
             catch (OperationCanceledException)
             {
-                source.pitch = 1f;
+                if (source)
+                    source.pitch = 1f;
             }
         }
 
@@ -300,8 +301,12 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             }
             if (_activeSources.TryGetValue(groupTag, out var source))
             {
-                source.Stop();
-                source.pitch = 1f;
+                if (source)
+                {
+                    source.Stop();
+                    source.pitch = 1f;
+                }
+                
                 _activeSources.Remove(groupTag);
                 _currentPlayingGroups.Remove(groupTag);
                 SoundPlayStopped?.Invoke(groupTag, "");
@@ -320,8 +325,12 @@ namespace Project.Scripts.Services.Audio.AudioSystem
             }
             if (_activeSources.TryGetValue(soundTag, out var source))
             {
-                source.Stop();
-                source.pitch = 1f;
+                if (source)
+                {
+                    source.Stop();
+                    source.pitch = 1f;
+                }
+                
                 _activeSources.Remove(soundTag);
                 SoundPlayStopped?.Invoke(groupTag, soundTag);
             }
