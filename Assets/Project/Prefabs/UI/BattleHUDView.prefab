@@ -76,7 +76,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 527, y: -115}
+  m_AnchoredPosition: {x: 504.5, y: -112.5}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &352376302672524612
@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 527, y: -115}
+  m_AnchoredPosition: {x: 504.5, y: -112.5}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798258081113507574
@@ -598,7 +598,7 @@ MonoBehaviour:
   - {fileID: 1117959445147460088}
   _floatingDamagePrefab: {fileID: 193155107088132852, guid: a1a4f6c52040b124db6453c2dd709e4a, type: 3}
   _floatingDamageContainer: {fileID: 3019068306831662729}
-  _playerPanelPadding: 50
+  _playerPanelPadding: 60
 --- !u!1 &3148835812865434907
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,7 +1307,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6357321011293548927, guid: 8da9e435a54238e428d926f795fea475, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 100
+      value: 97.5
       objectReference: {fileID: 0}
     - target: {fileID: 8869491624664651089, guid: 8da9e435a54238e428d926f795fea475, type: 3}
       propertyPath: m_AnchorMax.x
