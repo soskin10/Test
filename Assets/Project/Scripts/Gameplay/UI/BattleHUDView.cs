@@ -1,11 +1,9 @@
 using Cysharp.Threading.Tasks;
-using Project.Scripts.Services.Input;
 using Project.Scripts.Services.UISystem;
 using R3;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Pool;
-using UnityEngine.UI;
 
 namespace Project.Scripts.Gameplay.UI
 {
@@ -18,41 +16,19 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("Text displaying the enemy opponent name in the top bar")]
         [SerializeField] private TMP_Text _enemyNameText;
 
-        [Header("Enemy")]
-        [Tooltip("Image displaying the enemy avatar portrait")]
-        [SerializeField] private Image _enemyAvatar;
+        [Header("Avatars")]
+        [Tooltip("AvatarSlotView for the enemy avatar — portrait, HP bar, energy bar, hit reaction")]
+        [SerializeField] private AvatarSlotView _enemyAvatarSlot;
 
-        [Tooltip("HP bar component for the enemy — handles fill bar, lag bar, and shake")]
-        [SerializeField] private HPBarComponent _enemyHPBar;
+        [Tooltip("AvatarSlotView for the player avatar — portrait, HP bar, energy bar, hit reaction, activation input")]
+        [SerializeField] private AvatarSlotView _playerAvatarSlot;
 
-        [Tooltip("Hit reaction component on the enemy avatar panel")]
-        [SerializeField] private HitReactionComponent _enemyHitReaction;
-
-        [Tooltip("Charge bar displayed next to the enemy avatar")]
-        [SerializeField] private AvatarChargeBarView _enemyChargeBar;
+        [Tooltip("RectTransform of the player avatar panel — positioned at board top edge at runtime")]
+        [SerializeField] private RectTransform _playerPanel;
 
         [Header("Enemy Heroes")]
         [Tooltip("Four HeroSlotView components for the enemy side, ordered left to right")]
         [SerializeField] private HeroSlotView[] _enemyHeroSlots;
-
-        [Header("Player")]
-        [Tooltip("RectTransform of the player avatar panel — positioned at board top edge at runtime")]
-        [SerializeField] private RectTransform _playerPanel;
-
-        [Tooltip("Image displaying the player avatar portrait")]
-        [SerializeField] private Image _playerAvatar;
-
-        [Tooltip("HP bar component for the player — handles fill bar, lag bar, and shake")]
-        [SerializeField] private HPBarComponent _playerHPBar;
-
-        [Tooltip("Hit reaction component on the player avatar panel")]
-        [SerializeField] private HitReactionComponent _playerHitReaction;
-
-        [Tooltip("Charge bar displayed next to the player avatar")]
-        [SerializeField] private AvatarChargeBarView _playerChargeBar;
-
-        [Tooltip("Button + AvatarActivationInputHandler on the player avatar — publishes PlayerAvatarActivatedEvent")]
-        [SerializeField] private AvatarActivationInputHandler _playerAvatarActivation;
 
         [Header("Player Heroes")]
         [Tooltip("Four HeroSlotView components for the player side, ordered left to right")]
@@ -85,61 +61,19 @@ namespace Project.Scripts.Gameplay.UI
             if (_enemyNameText)
                 _enemyNameText.text = ViewModel.EnemyName;
 
-            if (_enemyAvatar)
-                _enemyAvatar.sprite = ViewModel.EnemyAvatarSprite;
-            if (_playerAvatar)
-                _playerAvatar.sprite = ViewModel.PlayerAvatarSprite;
+            _enemyAvatarSlot.Bind(ViewModel.EnemyAvatar);
+            _playerAvatarSlot.Bind(ViewModel.PlayerAvatar);
 
-            _enemyHitReaction.Init(ViewModel.BattleAnimConfig);
-            _playerHitReaction.Init(ViewModel.BattleAnimConfig);
-
-            _enemyHPBar.Init(ViewModel.BattleAnimConfig);
-            _playerHPBar.Init(ViewModel.BattleAnimConfig);
-
-            _enemyHPBar.SetFillInstant(ViewModel.EnemyHPFill.CurrentValue);
-            _playerHPBar.SetFillInstant(ViewModel.PlayerHPFill.CurrentValue);
-
-            ViewModel.EnemyHPFill
-                .Skip(1)
-                .Subscribe(v => _enemyHPBar.AnimateFill(v))
+            ViewModel.EnemyAvatar.Hit
+                .Subscribe(damage => SpawnDamageNumber(damage, _enemyAvatarSlot.HitAnchor))
                 .AddTo(Disposables);
 
-            ViewModel.PlayerHPFill
-                .Skip(1)
-                .Subscribe(v => _playerHPBar.AnimateFill(v))
-                .AddTo(Disposables);
-
-            ViewModel.EnemyHit
-                .Subscribe(damage =>
-                {
-                    _enemyHitReaction.PlayHitReaction();
-                    SpawnDamageNumber(damage, (RectTransform)_enemyHitReaction.transform);
-                })
-                .AddTo(Disposables);
-
-            ViewModel.PlayerHit
-                .Subscribe(damage =>
-                {
-                    _playerHitReaction.PlayHitReaction();
-                    SpawnDamageNumber(damage, (RectTransform)_playerHitReaction.transform);
-                })
+            ViewModel.PlayerAvatar.Hit
+                .Subscribe(damage => SpawnDamageNumber(damage, _playerAvatarSlot.HitAnchor))
                 .AddTo(Disposables);
 
             BindHeroSlots(_enemyHeroSlots, ViewModel.EnemyHeroSlots);
             BindHeroSlots(_playerHeroSlots, ViewModel.PlayerHeroSlots);
-
-            _playerChargeBar?.Bind(ViewModel.PlayerChargeBar);
-            _enemyChargeBar?.Bind(ViewModel.EnemyChargeBar);
-
-            if (_playerAvatarActivation)
-            {
-                _playerAvatarActivation.Initialize(ViewModel.EventBus);
-                _playerAvatarActivation.SetInteractable(false);
-
-                ViewModel.PlayerChargeBar.IsReady
-                    .Subscribe(full => _playerAvatarActivation.SetInteractable(full))
-                    .AddTo(Disposables);
-            }
 
             _canvas = GetComponentInParent<Canvas>();
             _isOverlay = _canvas && _canvas.renderMode == RenderMode.ScreenSpaceOverlay;
@@ -184,7 +118,7 @@ namespace Project.Scripts.Gameplay.UI
 #if UNITY_EDITOR
         private void Update()
         {
-            if (!Application.isPlaying || null == ViewModel || !_referenceRect)
+            if (false == Application.isPlaying || null == ViewModel || !_referenceRect)
                 return;
 
             ApplyTopSafeAreaOffset();
@@ -249,7 +183,7 @@ namespace Project.Scripts.Gameplay.UI
             var item = _floatingPool.Get();
             item.Play(damage, anchor, ViewModel.BattleAnimConfig, () => _floatingPool.Release(item));
         }
-        
+
         private void BindHeroSlots(HeroSlotView[] views, HeroSlotViewModel[] viewModels)
         {
             if (null == views || null == viewModels)

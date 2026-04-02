@@ -214,9 +214,10 @@ GameObject:
   - component: {fileID: 8869491624664651089}
   - component: {fileID: 2066955390843299940}
   - component: {fileID: 7746981658301063087}
+  - component: {fileID: 311908454344792182}
   - component: {fileID: 1559367361891164338}
   - component: {fileID: 6964828173277366045}
-  - component: {fileID: 311908454344792182}
+  - component: {fileID: 6006035243271521079}
   m_Layer: 5
   m_Name: AvatarView
   m_TagString: Untagged
@@ -315,6 +316,26 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &311908454344792182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6097703413289643584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: 238
+  m_MinHeight: -1
+  m_PreferredWidth: 238
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &1559367361891164338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -342,7 +363,7 @@ MonoBehaviour:
   _portrait: {fileID: 217330547944837518}
   _knockbackTarget: {fileID: 8869491624664651089}
   _knockbackDirectionSign: 1
---- !u!114 &311908454344792182
+--- !u!114 &6006035243271521079
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -351,17 +372,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 6097703413289643584}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Script: {fileID: 11500000, guid: 7075543d2f8450a47a639d72123fe21b, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
-  m_IgnoreLayout: 0
-  m_MinWidth: 238
-  m_MinHeight: -1
-  m_PreferredWidth: 238
-  m_PreferredHeight: -1
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
+  m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Gameplay.UI.AvatarSlotView
+  _portrait: {fileID: 217330547944837518}
+  _hpBar: {fileID: 9072320182627429370}
+  _hitReaction: {fileID: 6964828173277366045}
+  _energyBar: {fileID: 6563772224026841026}
+  _activationHandler: {fileID: 1559367361891164338}
 --- !u!1 &6175180092100173917
 GameObject:
   m_ObjectHideFlags: 0

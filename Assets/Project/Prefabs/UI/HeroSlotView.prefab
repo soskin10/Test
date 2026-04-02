@@ -86,9 +86,9 @@ GameObject:
   - component: {fileID: 1829098010855728361}
   - component: {fileID: 1073707281911177850}
   - component: {fileID: 4309660881912274180}
+  - component: {fileID: 2735337900298364803}
   - component: {fileID: 563403053028072182}
   - component: {fileID: 4672357111057021317}
-  - component: {fileID: 3429684725784716536}
   m_Layer: 5
   m_Name: HeroSlotView
   m_TagString: Untagged
@@ -115,7 +115,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 150}
+  m_SizeDelta: {x: 174, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1073707281911177850
 CanvasRenderer:
@@ -151,6 +151,26 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &2735337900298364803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2481495671063614240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: 174
+  m_MinHeight: -1
+  m_PreferredWidth: 174
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!114 &563403053028072182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -182,22 +202,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Project.Scripts.Gameplay.UI.HitReactionComponent
   _portrait: {fileID: 6613056300140818271}
-  _knockbackTarget: {fileID: 0}
+  _knockbackTarget: {fileID: 1829098010855728361}
   _knockbackDirectionSign: 1
---- !u!114 &3429684725784716536
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2481495671063614240}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
-  m_HorizontalFit: 2
-  m_VerticalFit: 0
 --- !u!1 &7391088987867488275
 GameObject:
   m_ObjectHideFlags: 0
@@ -505,9 +511,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: 30
+  m_MinWidth: 20
   m_MinHeight: -1
-  m_PreferredWidth: 30
+  m_PreferredWidth: 20
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
 using Project.Scripts.Services;
@@ -14,10 +15,20 @@ namespace Project.Scripts.Gameplay.UI
 {
     public class BattleHUDViewModel : BaseViewModel
     {
+        public AvatarSlotViewModel PlayerAvatar { get; private set; }
+        public AvatarSlotViewModel EnemyAvatar { get; private set; }
+        public HeroSlotViewModel[] PlayerHeroSlots => _playerHeroSlots;
+        public HeroSlotViewModel[] EnemyHeroSlots => _enemyHeroSlots;
+        public string EnemyName => _levelConfig.BotConfig ? _levelConfig.BotConfig.OpponentName : string.Empty;
+        public BattleAnimationConfig BattleAnimConfig => _battleAnimationConfig;
+        public float BoardTopWorldY => _boardBounds.BoardTopWorldY;
+        public float BoardHalfWidth => _boardBounds.BoardHalfWidth;
+        public float BoardCenterX => _boardBounds.BoardCenterX;
+
+
         private readonly EventBus _eventBus;
         private readonly IEnemyStateService _enemyState;
         private readonly IPlayerStateService _playerState;
-        private readonly IPlayerAvatarChargeService _playerCharge;
         private readonly BattleHUDConfig _config;
         private readonly BattleAnimationConfig _battleAnimationConfig;
         private readonly IHeroService _heroService;
@@ -26,35 +37,12 @@ namespace Project.Scripts.Gameplay.UI
         private readonly IBoardBoundsProvider _boardBounds;
         private HeroSlotViewModel[] _playerHeroSlots;
         private HeroSlotViewModel[] _enemyHeroSlots;
-        private readonly Subject<int> _enemyHit = new();
-        private readonly Subject<int> _playerHit = new();
-        private int _prevEnemyHP;
-        private int _prevPlayerHP;
-
-
-        public ReactiveProperty<float> EnemyHPFill { get; } = new(1f);
-        public ReactiveProperty<float> PlayerHPFill { get; } = new(1f);
-        public Observable<int> EnemyHit => _enemyHit;
-        public Observable<int> PlayerHit => _playerHit;
-        public Sprite EnemyAvatarSprite { get; private set; }
-        public Sprite PlayerAvatarSprite { get; private set; }
-        public BattleAnimationConfig BattleAnimConfig => _battleAnimationConfig;
-        public float BoardTopWorldY => _boardBounds.BoardTopWorldY;
-        public float BoardHalfWidth => _boardBounds.BoardHalfWidth;
-        public float BoardCenterX => _boardBounds.BoardCenterX;
-        public HeroSlotViewModel[] PlayerHeroSlots => _playerHeroSlots;
-        public HeroSlotViewModel[] EnemyHeroSlots => _enemyHeroSlots;
-        public string EnemyName => _levelConfig.BotConfig ? _levelConfig.BotConfig.OpponentName : string.Empty;
-        public AvatarChargeBarViewModel PlayerChargeBar { get; private set; }
-        public AvatarChargeBarViewModel EnemyChargeBar { get; private set; }
-        public EventBus EventBus => _eventBus;
 
 
         public BattleHUDViewModel(
             EventBus eventBus,
             IEnemyStateService enemyState,
             IPlayerStateService playerState,
-            IPlayerAvatarChargeService playerCharge,
             BattleHUDConfig config,
             BattleAnimationConfig battleAnimationConfig,
             IHeroService heroService,
@@ -65,7 +53,6 @@ namespace Project.Scripts.Gameplay.UI
             _eventBus = eventBus;
             _enemyState = enemyState;
             _playerState = playerState;
-            _playerCharge = playerCharge;
             _config = config;
             _battleAnimationConfig = battleAnimationConfig;
             _heroService = heroService;
@@ -77,19 +64,21 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override UniTask OnInitializeAsync()
         {
-            EnemyAvatarSprite = _config.EnemyAvatarSprite;
-            PlayerAvatarSprite = _config.PlayerAvatarSprite;
+            PlayerAvatar = new AvatarSlotViewModel(
+                _eventBus,
+                BattleSide.Player,
+                _config.PlayerAvatarSprite,
+                _playerState.CurrentHP,
+                _playerState.MaxHP,
+                _battleAnimationConfig);
 
-            PlayerChargeBar = new AvatarChargeBarViewModel(_eventBus, BattleSide.Player);
-            EnemyChargeBar = new AvatarChargeBarViewModel(_eventBus, BattleSide.Enemy);
-
-            _prevEnemyHP = _enemyState.CurrentHP;
-            _prevPlayerHP = _playerState.CurrentHP;
-
-            EnemyHPFill.Value = _enemyState.MaxHP > 0
-                ? (float)_enemyState.CurrentHP / _enemyState.MaxHP : 1f;
-            PlayerHPFill.Value = _playerState.MaxHP > 0
-                ? (float)_playerState.CurrentHP / _playerState.MaxHP : 1f;
+            EnemyAvatar = new AvatarSlotViewModel(
+                _eventBus,
+                BattleSide.Enemy,
+                _config.EnemyAvatarSprite,
+                _enemyState.CurrentHP,
+                _enemyState.MaxHP,
+                _battleAnimationConfig);
 
             _playerHeroSlots = CreateHeroSlotViewModels(
                 BattleSide.Player,
@@ -103,8 +92,6 @@ namespace Project.Scripts.Gameplay.UI
                 _levelConfig.EnemyHeroes,
                 null);
 
-            Disposables.Add(_eventBus.Subscribe<EnemyHPChangedEvent>(OnEnemyHPChanged));
-            Disposables.Add(_eventBus.Subscribe<PlayerHPChangedEvent>(OnPlayerHPChanged));
             Disposables.Add(_eventBus.Subscribe<HeroEnergyChangedEvent>(OnHeroEnergyChanged));
 
             return UniTask.CompletedTask;
@@ -112,13 +99,8 @@ namespace Project.Scripts.Gameplay.UI
 
         protected override void OnCleanup()
         {
-            EnemyHPFill.Dispose();
-            PlayerHPFill.Dispose();
-            _enemyHit.Dispose();
-            _playerHit.Dispose();
-
-            PlayerChargeBar?.Dispose();
-            EnemyChargeBar?.Dispose();
+            PlayerAvatar?.Dispose();
+            EnemyAvatar?.Dispose();
 
             if (null != _playerHeroSlots)
                 for (var i = 0; i < _playerHeroSlots.Length; i++)
@@ -129,22 +111,6 @@ namespace Project.Scripts.Gameplay.UI
                     _enemyHeroSlots[i]?.Dispose();
         }
 
-
-        private void OnEnemyHPChanged(EnemyHPChangedEvent e)
-        {
-            if (e.Current < _prevEnemyHP)
-                _enemyHit.OnNext(_prevEnemyHP - e.Current);
-            _prevEnemyHP = e.Current;
-            EnemyHPFill.Value = e.Max > 0 ? (float)e.Current / e.Max : 0f;
-        }
-
-        private void OnPlayerHPChanged(PlayerHPChangedEvent e)
-        {
-            if (e.Current < _prevPlayerHP)
-                _playerHit.OnNext(_prevPlayerHP - e.Current);
-            _prevPlayerHP = e.Current;
-            PlayerHPFill.Value = e.Max > 0 ? (float)e.Current / e.Max : 0f;
-        }
 
         private void OnHeroEnergyChanged(HeroEnergyChangedEvent e)
         {
@@ -157,7 +123,7 @@ namespace Project.Scripts.Gameplay.UI
 
         private HeroSlotViewModel[] CreateHeroSlotViewModels(
             BattleSide side,
-            System.Collections.Generic.IReadOnlyList<HeroSlotState> states,
+            IReadOnlyList<HeroSlotState> states,
             HeroConfig[] configs,
             Action<int> onActivate)
         {
@@ -166,7 +132,7 @@ namespace Project.Scripts.Gameplay.UI
             for (var i = 0; i < 4; i++)
             {
                 var state = states[i];
-                var config = (configs != null && i < configs.Length) ? configs[i] : null;
+                var config = (null != configs && i < configs.Length) ? configs[i] : null;
                 var color = state.IsAssigned
                     ? _palette.GetColor(state.Kind, Color.gray)
                     : Color.gray;

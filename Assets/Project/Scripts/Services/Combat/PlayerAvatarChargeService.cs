@@ -5,10 +5,11 @@ using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Shared.Avatar;
 using R3;
 using UnityEngine;
+using VContainer.Unity;
 
 namespace Project.Scripts.Services.Combat
 {
-    public class PlayerAvatarChargeService : IPlayerAvatarChargeService, IDisposable
+    public class PlayerAvatarChargeService : IPlayerAvatarChargeService, IStartable, IDisposable
     {
         public int CurrentEnergy => _engine.Snapshot.CurrentEnergy;
         public int MaxEnergy => _engine.Snapshot.MaxEnergy;
@@ -24,7 +25,10 @@ namespace Project.Scripts.Services.Combat
         {
             _eventBus = eventBus;
             _engine.Initialize(damageConfig.MaxAvatarCharge);
+        }
 
+        public void Start()
+        {
             _subscriptions.Add(_eventBus.Subscribe<CascadeCompletedEvent>(OnCascadeCompleted));
             _subscriptions.Add(_eventBus.Subscribe<PlayerAvatarActivatedEvent>(OnPlayerAvatarActivated));
         }
