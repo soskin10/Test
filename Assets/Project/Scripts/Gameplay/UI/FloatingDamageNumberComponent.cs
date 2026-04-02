@@ -21,12 +21,21 @@ namespace Project.Scripts.Gameplay.UI
         }
         
 
-        public void Play(int damage, RectTransform anchor, BattleAnimationConfig config, Action onDone)
+        public void Play(int value, FloatingNumberType type, RectTransform anchor, BattleAnimationConfig config, Action onDone)
         {
             var rect = (RectTransform)transform;
             rect.position = anchor.position;
 
-            _label.text = $"-{damage}";
+            _label.text = type switch
+            {
+                FloatingNumberType.Heal => $"+{value}",
+                _ => $"-{value}"
+            };
+            _label.color = type switch
+            {
+                FloatingNumberType.Heal => config.HealNumberColor,
+                _ => config.DamageNumberColor
+            };
             _label.alpha = 1f;
 
             _sequence?.Kill();

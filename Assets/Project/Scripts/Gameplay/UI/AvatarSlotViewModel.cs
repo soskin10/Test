@@ -16,10 +16,12 @@ namespace Project.Scripts.Gameplay.UI
         public EventBus EventBus { get; }
         public ReactiveProperty<float> HPFill { get; }
         public Observable<int> Hit => _hit;
+        public Observable<int> Heal => _heal;
         public AvatarChargeBarViewModel EnergyBar { get; }
 
 
         private readonly Subject<int> _hit = new();
+        private readonly Subject<int> _heal = new();
         private readonly CompositeDisposable _subscriptions = new();
         private int _prevHP;
 
@@ -45,6 +47,7 @@ namespace Project.Scripts.Gameplay.UI
         {
             HPFill.Dispose();
             _hit.Dispose();
+            _heal.Dispose();
             EnergyBar.Dispose();
             _subscriptions.Dispose();
         }
@@ -58,7 +61,9 @@ namespace Project.Scripts.Gameplay.UI
         {
             if (current < _prevHP)
                 _hit.OnNext(_prevHP - current);
-            
+            else if (current > _prevHP)
+                _heal.OnNext(current - _prevHP);
+
             _prevHP = current;
             HPFill.Value = max > 0 ? (float)current / max : 0f;
         }

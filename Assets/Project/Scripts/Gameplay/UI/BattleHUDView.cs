@@ -66,11 +66,19 @@ namespace Project.Scripts.Gameplay.UI
             _playerAvatarSlot.Bind(ViewModel.PlayerAvatar, ViewModel.PulseCoordinator);
 
             ViewModel.EnemyAvatar.Hit
-                .Subscribe(damage => SpawnDamageNumber(damage, _enemyAvatarSlot.HitAnchor))
+                .Subscribe(damage => SpawnFloatingNumber(damage, FloatingNumberType.Damage, _enemyAvatarSlot.HitAnchor))
                 .AddTo(Disposables);
 
             ViewModel.PlayerAvatar.Hit
-                .Subscribe(damage => SpawnDamageNumber(damage, _playerAvatarSlot.HitAnchor))
+                .Subscribe(damage => SpawnFloatingNumber(damage, FloatingNumberType.Damage, _playerAvatarSlot.HitAnchor))
+                .AddTo(Disposables);
+
+            ViewModel.EnemyAvatar.Heal
+                .Subscribe(amount => SpawnFloatingNumber(amount, FloatingNumberType.Heal, _enemyAvatarSlot.HitAnchor))
+                .AddTo(Disposables);
+
+            ViewModel.PlayerAvatar.Heal
+                .Subscribe(amount => SpawnFloatingNumber(amount, FloatingNumberType.Heal, _playerAvatarSlot.HitAnchor))
                 .AddTo(Disposables);
 
             BindHeroSlots(_enemyHeroSlots, ViewModel.EnemyHeroSlots, ViewModel.PulseCoordinator, ViewModel.BattleAnimConfig);
@@ -176,13 +184,13 @@ namespace Project.Scripts.Gameplay.UI
             _playerPanel.anchoredPosition = new Vector2(0f, localPoint.y + referenceHeight * 0.5f + _playerPanelPadding);
         }
 
-        private void SpawnDamageNumber(int damage, RectTransform anchor)
+        private void SpawnFloatingNumber(int value, FloatingNumberType type, RectTransform anchor)
         {
             if (null == _floatingPool)
                 return;
 
             var item = _floatingPool.Get();
-            item.Play(damage, anchor, ViewModel.BattleAnimConfig, () => _floatingPool.Release(item));
+            item.Play(value, type, anchor, ViewModel.BattleAnimConfig, () => _floatingPool.Release(item));
         }
 
         private void BindHeroSlots(HeroSlotView[] views, HeroSlotViewModel[] viewModels, IReadyPulseCoordinator pulseCoordinator, BattleAnimationConfig config)
