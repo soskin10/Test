@@ -61,8 +61,8 @@ namespace Project.Scripts.Gameplay.UI
             if (_enemyNameText)
                 _enemyNameText.text = ViewModel.EnemyName;
 
-            _enemyAvatarSlot.Bind(ViewModel.EnemyAvatar);
-            _playerAvatarSlot.Bind(ViewModel.PlayerAvatar);
+            _enemyAvatarSlot.Bind(ViewModel.EnemyAvatar, ViewModel.PulseCoordinator);
+            _playerAvatarSlot.Bind(ViewModel.PlayerAvatar, ViewModel.PulseCoordinator);
 
             ViewModel.EnemyAvatar.Hit
                 .Subscribe(damage => SpawnDamageNumber(damage, _enemyAvatarSlot.HitAnchor))
@@ -72,8 +72,8 @@ namespace Project.Scripts.Gameplay.UI
                 .Subscribe(damage => SpawnDamageNumber(damage, _playerAvatarSlot.HitAnchor))
                 .AddTo(Disposables);
 
-            BindHeroSlots(_enemyHeroSlots, ViewModel.EnemyHeroSlots);
-            BindHeroSlots(_playerHeroSlots, ViewModel.PlayerHeroSlots);
+            BindHeroSlots(_enemyHeroSlots, ViewModel.EnemyHeroSlots, ViewModel.PulseCoordinator);
+            BindHeroSlots(_playerHeroSlots, ViewModel.PlayerHeroSlots, ViewModel.PulseCoordinator);
 
             _canvas = GetComponentInParent<Canvas>();
             _isOverlay = _canvas && _canvas.renderMode == RenderMode.ScreenSpaceOverlay;
@@ -184,7 +184,7 @@ namespace Project.Scripts.Gameplay.UI
             item.Play(damage, anchor, ViewModel.BattleAnimConfig, () => _floatingPool.Release(item));
         }
 
-        private void BindHeroSlots(HeroSlotView[] views, HeroSlotViewModel[] viewModels)
+        private void BindHeroSlots(HeroSlotView[] views, HeroSlotViewModel[] viewModels, IReadyPulseCoordinator pulseCoordinator)
         {
             if (null == views || null == viewModels)
                 return;
@@ -193,7 +193,7 @@ namespace Project.Scripts.Gameplay.UI
             for (var i = 0; i < count; i++)
             {
                 if (views[i])
-                    views[i].Bind(viewModels[i]);
+                    views[i].Bind(viewModels[i], pulseCoordinator);
             }
         }
     }

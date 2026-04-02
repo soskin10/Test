@@ -35,7 +35,7 @@ namespace Project.Scripts.Gameplay.UI
         }
 
 
-        public void Bind(AvatarSlotViewModel viewModel)
+        public void Bind(AvatarSlotViewModel viewModel, IReadyPulseCoordinator pulseCoordinator)
         {
             _disposables?.Dispose();
             _disposables = new CompositeDisposable();
@@ -63,7 +63,7 @@ namespace Project.Scripts.Gameplay.UI
                     .AddTo(_disposables);
             }
 
-            _energyBar?.Bind(viewModel.EnergyBar);
+            _energyBar?.Bind(viewModel.EnergyBar, pulseCoordinator);
 
             if (_activationHandler)
             {

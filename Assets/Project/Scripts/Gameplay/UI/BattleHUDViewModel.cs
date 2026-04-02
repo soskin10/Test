@@ -8,7 +8,6 @@ using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Services.UISystem;
 using Project.Scripts.Shared.Heroes;
-using R3;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay.UI
@@ -19,6 +18,7 @@ namespace Project.Scripts.Gameplay.UI
         public AvatarSlotViewModel EnemyAvatar { get; private set; }
         public HeroSlotViewModel[] PlayerHeroSlots => _playerHeroSlots;
         public HeroSlotViewModel[] EnemyHeroSlots => _enemyHeroSlots;
+        public IReadyPulseCoordinator PulseCoordinator { get; }
         public string EnemyName => _levelConfig.BotConfig ? _levelConfig.BotConfig.OpponentName : string.Empty;
         public BattleAnimationConfig BattleAnimConfig => _battleAnimationConfig;
         public float BoardTopWorldY => _boardBounds.BoardTopWorldY;
@@ -48,7 +48,8 @@ namespace Project.Scripts.Gameplay.UI
             IHeroService heroService,
             TileKindPaletteConfig palette,
             LevelConfig levelConfig,
-            IBoardBoundsProvider boardBounds)
+            IBoardBoundsProvider boardBounds,
+            IReadyPulseCoordinator pulseCoordinator)
         {
             _eventBus = eventBus;
             _enemyState = enemyState;
@@ -59,6 +60,7 @@ namespace Project.Scripts.Gameplay.UI
             _palette = palette;
             _levelConfig = levelConfig;
             _boardBounds = boardBounds;
+            PulseCoordinator = pulseCoordinator;
         }
 
 

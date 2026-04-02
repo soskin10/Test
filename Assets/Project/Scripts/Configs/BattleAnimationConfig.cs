@@ -43,6 +43,16 @@ namespace Project.Scripts.Configs
         [Tooltip("Easing curve for the heal tween")]
         [SerializeField] private Ease _hpBarHealEase = Ease.OutQuad;
 
+        [Header("Ready Pulse")]
+        [Tooltip("Duration of one full pulse cycle in seconds")]
+        [SerializeField] private float _readyPulseDuration = 0.6f;
+
+        [Tooltip("Minimum alpha reached at the bottom of the pulse (0-1)")]
+        [SerializeField] private float _readyPulseAlpha = 0.4f;
+
+        [Tooltip("Easing curve for the pulse animation")]
+        [SerializeField] private Ease _readyPulseEase = Ease.InOutSine;
+
         [Header("Floating Damage Numbers")]
         [Tooltip("Distance in canvas units the damage number floats upward")]
         [SerializeField] private float _floatDamageDistance = 80f;
@@ -69,5 +79,8 @@ namespace Project.Scripts.Configs
         public float FloatDamageDistance => _floatDamageDistance;
         public float FloatDamageDuration => _floatDamageDuration;
         public Ease FloatDamageEase => _floatDamageEase;
+        public float ReadyPulseDuration => _readyPulseDuration;
+        public float ReadyPulseAlpha => _readyPulseAlpha;
+        public Ease ReadyPulseEase => _readyPulseEase;
     }
 }

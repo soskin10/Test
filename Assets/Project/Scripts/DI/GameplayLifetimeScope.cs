@@ -34,6 +34,7 @@ namespace Project.Scripts.DI
             builder.Register<MoveBarViewModel>(Lifetime.Singleton);
             builder.Register<BattleHUDViewModel>(Lifetime.Singleton);
             builder.Register<GameResultPresenter>(Lifetime.Singleton);
+            builder.Register<IReadyPulseCoordinator, ReadyPulseCoordinator>(Lifetime.Singleton);
 
             builder.Register<IBoardBoundsProvider, BoardBoundsProvider>(Lifetime.Singleton);
 
@@ -42,7 +43,6 @@ namespace Project.Scripts.DI
                 builder.RegisterInstance(levelConfig.BotConfig);
                 builder.RegisterEntryPoint<BotOpponentService>().As<IBotOpponentService>();
             }
-
         }
     }
 }

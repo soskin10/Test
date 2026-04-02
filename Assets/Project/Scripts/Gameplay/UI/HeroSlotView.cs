@@ -1,4 +1,3 @@
-using DG.Tweening;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
@@ -21,16 +20,8 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("Button for activating this hero — assign only on player slots; leave null for enemy slots")]
         [SerializeField] private Button _activateButton;
 
-        [Header("Ready Pulse Animation")]
-        [Tooltip("Duration of one full pulse cycle in seconds")]
-        [SerializeField] private float _pulseDuration = 0.6f;
-
-        [Tooltip("Target alpha for the pulse peak (0-1)")]
-        [SerializeField] private float _pulseAlpha = 0.4f;
-
 
         private Color _defaultEnergyBarColor;
-        private Tween _pulseTween;
         private CompositeDisposable _disposables = new();
 
 
@@ -42,8 +33,6 @@ namespace Project.Scripts.Gameplay.UI
 
         private void OnDestroy()
         {
-            StopPulse();
-
             if (_activateButton)
                 _activateButton.onClick.RemoveAllListeners();
 
@@ -51,7 +40,7 @@ namespace Project.Scripts.Gameplay.UI
         }
 
 
-        public void Bind(HeroSlotViewModel viewModel)
+        public void Bind(HeroSlotViewModel viewModel, IReadyPulseCoordinator pulseCoordinator)
         {
             if (_portrait)
             {
@@ -86,10 +75,20 @@ namespace Project.Scripts.Gameplay.UI
                     viewModel.IsActivatable
                         .Subscribe(activatable =>
                         {
-                            if (activatable)
-                                StartPulse();
-                            else
-                                StopPulse();
+                            if (!activatable)
+                                _energyBarFill.color = _defaultEnergyBarColor;
+                        })
+                        .AddTo(_disposables);
+
+                    pulseCoordinator.Alpha
+                        .Subscribe(a =>
+                        {
+                            if (viewModel.IsActivatable.CurrentValue)
+                            {
+                                var c = _defaultEnergyBarColor;
+                                c.a = a;
+                                _energyBarFill.color = c;
+                            }
                         })
                         .AddTo(_disposables);
                 }
@@ -108,32 +107,6 @@ namespace Project.Scripts.Gameplay.UI
                 else
                     _activateButton.enabled = false;
             }
-        }
-
-
-        private void StartPulse()
-        {
-            if (!_energyBarFill)
-                return;
-
-            StopPulse();
-
-            var peakColor = _defaultEnergyBarColor;
-            peakColor.a = _pulseAlpha;
-
-            _pulseTween = _energyBarFill
-                .DOColor(peakColor, _pulseDuration * 0.5f)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo);
-        }
-
-        private void StopPulse()
-        {
-            _pulseTween?.Kill();
-            _pulseTween = null;
-
-            if (_energyBarFill)
-                _energyBarFill.color = _defaultEnergyBarColor;
         }
     }
 }
