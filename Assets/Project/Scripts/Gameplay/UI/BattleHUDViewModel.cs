@@ -95,6 +95,8 @@ namespace Project.Scripts.Gameplay.UI
                 null);
 
             Disposables.Add(_eventBus.Subscribe<HeroEnergyChangedEvent>(OnHeroEnergyChanged));
+            Disposables.Add(_eventBus.Subscribe<HeroHPChangedEvent>(OnHeroHPChanged));
+            Disposables.Add(_eventBus.Subscribe<HeroDefeatedEvent>(OnHeroDefeated));
 
             return UniTask.CompletedTask;
         }
@@ -121,6 +123,20 @@ namespace Project.Scripts.Gameplay.UI
                 return;
 
             slots[e.SlotIndex]?.UpdateEnergy(e.Current, e.Max);
+        }
+
+        private void OnHeroHPChanged(HeroHPChangedEvent e)
+        {
+            var slots = e.Side == BattleSide.Player ? _playerHeroSlots : _enemyHeroSlots;
+            if (null == slots || e.SlotIndex < 0 || e.SlotIndex >= slots.Length)
+                return;
+
+            slots[e.SlotIndex]?.UpdateHP(e.Current, e.Max);
+        }
+
+        private void OnHeroDefeated(HeroDefeatedEvent e)
+        {
+            // This handler is reserved for future side effects (sound, particles, etc.).
         }
 
         private HeroSlotViewModel[] CreateHeroSlotViewModels(

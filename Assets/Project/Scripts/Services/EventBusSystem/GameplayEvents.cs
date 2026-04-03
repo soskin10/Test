@@ -108,6 +108,36 @@ namespace Project.Scripts.Services.EventBusSystem
             }
         }
 
+        public readonly struct HeroHPChangedEvent
+        {
+            public BattleSide Side      { get; }
+            public int        SlotIndex { get; }
+            public int        Current   { get; }
+            public int        Max       { get; }
+
+
+            public HeroHPChangedEvent(BattleSide side, int slotIndex, int current, int max)
+            {
+                Side      = side;
+                SlotIndex = slotIndex;
+                Current   = current;
+                Max       = max;
+            }
+        }
+
+        public readonly struct HeroDefeatedEvent
+        {
+            public BattleSide Side      { get; }
+            public int        SlotIndex { get; }
+
+
+            public HeroDefeatedEvent(BattleSide side, int slotIndex)
+            {
+                Side      = side;
+                SlotIndex = slotIndex;
+            }
+        }
+
         public readonly struct HeroEnergyChangedEvent
         {
             public BattleSide Side { get; }

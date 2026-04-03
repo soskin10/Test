@@ -22,6 +22,9 @@ namespace Project.Scripts.Configs
         [Tooltip("Portrait sprite displayed in the hero slot (null = empty frame)")]
         [SerializeField] private Sprite _portrait;
 
+        [Tooltip("Maximum HP of this hero. Zero means the hero is immortal (cannot be damaged)")]
+        [SerializeField] private int _maxHP = 50;
+
         [Tooltip("Display name of the hero, for future UI labels")]
         [SerializeField] private string _displayName;
 
@@ -30,6 +33,7 @@ namespace Project.Scripts.Configs
         public int MaxEnergy => _maxEnergy;
         public HeroActionType ActionType => _actionType;
         public int ActionValue => _actionValue;
+        public int MaxHP => _maxHP;
         public Sprite Portrait => _portrait;
         public string DisplayName => _displayName;
     }

@@ -17,7 +17,7 @@ MonoBehaviour:
   _tileScale: 0.85
   _framePadding: 0.1
   _maskTopPadding: 2
-  _boardBottomPaddingCells: 0.5
+  _boardBottomPaddingCells: 0.65
   _minMatchLength: 3
   _maxAspectRatio: 0.5
   _tilePrefab: {fileID: 1773954573927491530, guid: a5207b55f0bde394299f025baad22fc0, type: 3}

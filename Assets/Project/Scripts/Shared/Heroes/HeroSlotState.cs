@@ -10,8 +10,12 @@ namespace Project.Scripts.Shared.Heroes
         public int MaxEnergy;
         public HeroActionType ActionType;
         public int ActionValue;
+        public int CurrentHP;
+        public int MaxHP;
 
+        //MaxHP == 0 - hero is immortal.
+        public bool IsAlive => MaxHP <= 0 || CurrentHP > 0;
 
-        public bool IsReady => IsAssigned && MaxEnergy > 0 && CurrentEnergy >= MaxEnergy;
+        public bool IsReady => IsAssigned && IsAlive && MaxEnergy > 0 && CurrentEnergy >= MaxEnergy;
     }
 }

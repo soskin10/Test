@@ -30,6 +30,9 @@ namespace Project.Scripts.Services.Combat
             InitSlots(_playerSlots, levelConfig.PlayerHeroes);
             InitSlots(_enemySlots, levelConfig.EnemyHeroes);
 
+            PublishInitialHPEvents(_playerSlots, BattleSide.Player);
+            PublishInitialHPEvents(_enemySlots, BattleSide.Enemy);
+
             _subscription = _eventBus.Subscribe<EnergyGeneratedEvent>(OnEnergyGenerated);
         }
 
@@ -58,8 +61,12 @@ namespace Project.Scripts.Services.Combat
             InitSlots(_enemySlots, heroes);
 
             for (var i = 0; i < SlotCount; i++)
+            {
                 _eventBus.Publish(new HeroEnergyChangedEvent(
                     BattleSide.Enemy, i, _enemySlots[i].CurrentEnergy, _enemySlots[i].MaxEnergy));
+                _eventBus.Publish(new HeroHPChangedEvent(
+                    BattleSide.Enemy, i, _enemySlots[i].CurrentHP, _enemySlots[i].MaxHP));
+            }
         }
 
         public void AddEnemyHeroEnergy(int slotIndex, int amount)
@@ -69,12 +76,30 @@ namespace Project.Scripts.Services.Combat
 
             ref var slot = ref _enemySlots[slotIndex];
 
-            if (false == slot.IsAssigned || amount <= 0)
+            if (false == slot.IsAssigned || false == slot.IsAlive || amount <= 0)
                 return;
 
             slot.CurrentEnergy = Math.Min(slot.MaxEnergy, slot.CurrentEnergy + amount);
             _eventBus.Publish(new HeroEnergyChangedEvent(
                 BattleSide.Enemy, slotIndex, slot.CurrentEnergy, slot.MaxEnergy));
+        }
+
+        public void ApplyDamageToHero(BattleSide side, int slotIndex, int amount)
+        {
+            if (slotIndex is < 0 or >= SlotCount || amount <= 0)
+                return;
+
+            ref var slot = ref GetSlotRef(side, slotIndex);
+            ApplyHPChange(ref slot, side, slotIndex, -amount);
+        }
+
+        public void ApplyHealToHero(BattleSide side, int slotIndex, int amount)
+        {
+            if (slotIndex is < 0 or >= SlotCount || amount <= 0)
+                return;
+
+            ref var slot = ref GetSlotRef(side, slotIndex);
+            ApplyHPChange(ref slot, side, slotIndex, +amount);
         }
 
         public void Dispose()
@@ -106,6 +131,31 @@ namespace Project.Scripts.Services.Combat
             _eventBus.Publish(new HeroEnergyChangedEvent(side, slotIndex, 0, slot.MaxEnergy));
         }
 
+        private void ApplyHPChange(ref HeroSlotState slot, BattleSide side, int slotIndex, int delta)
+        {
+            if (false == slot.IsAssigned || slot.MaxHP <= 0)
+                return;
+
+            if (false == slot.IsAlive)
+                return;
+
+            slot.CurrentHP = Math.Clamp(slot.CurrentHP + delta, 0, slot.MaxHP);
+            _eventBus.Publish(new HeroHPChangedEvent(side, slotIndex, slot.CurrentHP, slot.MaxHP));
+
+            if (slot.CurrentHP > 0)
+                return;
+
+            slot.CurrentEnergy = 0;
+            _eventBus.Publish(new HeroEnergyChangedEvent(side, slotIndex, 0, slot.MaxEnergy));
+            _eventBus.Publish(new HeroDefeatedEvent(side, slotIndex));
+        }
+
+        private ref HeroSlotState GetSlotRef(BattleSide side, int slotIndex)
+        {
+            var slots = side == BattleSide.Player ? _playerSlots : _enemySlots;
+            return ref slots[slotIndex];
+        }
+
         private void OnEnergyGenerated(EnergyGeneratedEvent e)
         {
             foreach (var pair in e.EnergyByKind)
@@ -114,14 +164,26 @@ namespace Project.Scripts.Services.Combat
 
         private void DistributeToSlots(HeroSlotState[] slots, BattleSide side, TileKind kind, int amount)
         {
-            HeroEnergyDistributor.Distribute(slots, kind, amount);
-
             for (var i = 0; i < slots.Length; i++)
             {
-                if (false == slots[i].IsAssigned || slots[i].Kind != kind)
+                ref var slot = ref slots[i];
+
+                if (false == slot.IsAssigned || false == slot.IsAlive || slot.Kind != kind)
                     continue;
 
-                _eventBus.Publish(new HeroEnergyChangedEvent(side, i, slots[i].CurrentEnergy, slots[i].MaxEnergy));
+                slot.CurrentEnergy = Math.Min(slot.MaxEnergy, slot.CurrentEnergy + amount);
+                _eventBus.Publish(new HeroEnergyChangedEvent(side, i, slot.CurrentEnergy, slot.MaxEnergy));
+            }
+        }
+
+        private void PublishInitialHPEvents(HeroSlotState[] slots, BattleSide side)
+        {
+            for (var i = 0; i < slots.Length; i++)
+            {
+                if (false == slots[i].IsAssigned)
+                    continue;
+
+                _eventBus.Publish(new HeroHPChangedEvent(side, i, slots[i].CurrentHP, slots[i].MaxHP));
             }
         }
 
@@ -143,7 +205,9 @@ namespace Project.Scripts.Services.Combat
                     CurrentEnergy = 0,
                     MaxEnergy = config.MaxEnergy,
                     ActionType = config.ActionType,
-                    ActionValue = config.ActionValue
+                    ActionValue = config.ActionValue,
+                    CurrentHP = config.MaxHP,
+                    MaxHP = config.MaxHP,
                 };
             }
         }

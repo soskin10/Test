@@ -244,7 +244,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 233, y: 225}
+  m_SizeDelta: {x: 233, y: 233}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2066955390843299940
 MonoBehaviour:
@@ -329,9 +329,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
   m_IgnoreLayout: 0
-  m_MinWidth: 233
+  m_MinWidth: 0
   m_MinHeight: -1
-  m_PreferredWidth: 233
+  m_PreferredWidth: 225
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -492,7 +492,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 30, y: 205}
+  m_SizeDelta: {x: 30, y: 195}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &4116946646236447402
 MonoBehaviour:
@@ -790,7 +790,7 @@ GameObject:
   - component: {fileID: 9035241598548978277}
   - component: {fileID: 217330547944837518}
   m_Layer: 5
-  m_Name: AvatarImage
+  m_Name: AvatarPortrait
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -813,7 +813,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 205}
+  m_SizeDelta: {x: 0, y: 195}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9035241598548978277
 CanvasRenderer:

@@ -18,6 +18,10 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("Energy bar fill Image (Type=Filled, FillMethod=Vertical, FillOrigin=Bottom)")]
         [SerializeField] private Image _energyBarFill;
 
+        [Header("HP")]
+        [Tooltip("Reusable HP bar component — wire up HPBar and LagBar images inside the prefab")]
+        [SerializeField] private HPBarComponent _hpBar;
+
         [Header("Interaction")]
         [Tooltip("Button for activating this hero — assign only on player slots; leave null for enemy slots")]
         [SerializeField] private Button _activateButton;
@@ -48,78 +52,120 @@ namespace Project.Scripts.Gameplay.UI
         public void Bind(HeroSlotViewModel viewModel, IReadyPulseCoordinator pulseCoordinator, BattleAnimationConfig config)
         {
             _config = config;
-            if (_portrait)
+
+            BindPortrait(viewModel);
+            BindEnergyBar(viewModel, pulseCoordinator);
+            BindHPBar(viewModel);
+            BindButton(viewModel);
+        }
+
+
+        private void BindPortrait(HeroSlotViewModel viewModel)
+        {
+            if (!_portrait)
+                return;
+
+            _portrait.enabled = viewModel.IsAssigned;
+
+            if (!viewModel.IsAssigned)
+                return;
+
+            _portrait.color = viewModel.SlotColor;
+
+            if (viewModel.Portrait)
+                _portrait.sprite = viewModel.Portrait;
+
+            viewModel.IsDefeated
+                .Subscribe(defeated => _portrait.color = defeated ? Color.gray : viewModel.SlotColor)
+                .AddTo(_disposables);
+        }
+
+        private void BindEnergyBar(HeroSlotViewModel viewModel, IReadyPulseCoordinator pulseCoordinator)
+        {
+            if (!_energyBarFill)
+                return;
+
+            if (viewModel.IsAssigned)
             {
-                _portrait.enabled = viewModel.IsAssigned;
-
-                if (viewModel.IsAssigned)
-                {
-                    _portrait.color = viewModel.SlotColor;
-
-                    if (viewModel.Portrait)
-                        _portrait.sprite = viewModel.Portrait;
-                }
+                _energyBarFill.color      = viewModel.SlotColor;
+                _defaultEnergyBarColor    = viewModel.SlotColor;
             }
 
-            if (_energyBarFill)
-            {
-                if (viewModel.IsAssigned)
+            _energyBarFill.fillAmount = viewModel.EnergyFill.CurrentValue;
+
+            viewModel.EnergyFill
+                .Skip(1)
+                .Subscribe(v =>
                 {
-                    _energyBarFill.color = viewModel.SlotColor;
-                    _defaultEnergyBarColor = viewModel.SlotColor;
-                }
+                    _energyFillTween?.Kill();
+                    if (_config)
+                        _energyFillTween = _energyBarFill.DOFillAmount(v, _config.EnergyFillDuration).SetEase(_config.EnergyFillEase);
+                    else
+                        _energyBarFill.fillAmount = v;
+                })
+                .AddTo(_disposables);
 
-                _energyBarFill.fillAmount = viewModel.EnergyFill.CurrentValue;
+            if (!viewModel.IsAssigned)
+                return;
 
-                viewModel.EnergyFill
-                    .Skip(1)
-                    .Subscribe(v =>
+            viewModel.IsActivatable
+                .Subscribe(activatable =>
+                {
+                    if (!activatable)
+                        _energyBarFill.color = _defaultEnergyBarColor;
+                })
+                .AddTo(_disposables);
+
+            pulseCoordinator.Alpha
+                .Subscribe(a =>
+                {
+                    if (viewModel.IsActivatable.CurrentValue)
                     {
-                        _energyFillTween?.Kill();
-                        if (_config)
-                            _energyFillTween = _energyBarFill.DOFillAmount(v, _config.EnergyFillDuration).SetEase(_config.EnergyFillEase);
-                        else
-                            _energyBarFill.fillAmount = v;
-                    })
+                        var c = _defaultEnergyBarColor;
+                        c.a = a;
+                        _energyBarFill.color = c;
+                    }
+                })
+                .AddTo(_disposables);
+
+            viewModel.IsDefeated
+                .Subscribe(defeated => _energyBarFill.enabled = !defeated)
+                .AddTo(_disposables);
+        }
+
+        private void BindHPBar(HeroSlotViewModel viewModel)
+        {
+            if (!_hpBar || !viewModel.IsAssigned)
+                return;
+
+            _hpBar.Init(_config);
+            _hpBar.SetFillInstant(viewModel.HPFill.CurrentValue);
+
+            viewModel.HPFill
+                .Skip(1)
+                .Subscribe(fill => _hpBar.AnimateFill(fill))
+                .AddTo(_disposables);
+
+            viewModel.IsDefeated
+                .Subscribe(defeated => _hpBar.gameObject.SetActive(!defeated))
+                .AddTo(_disposables);
+        }
+
+        private void BindButton(HeroSlotViewModel viewModel)
+        {
+            if (!_activateButton)
+                return;
+
+            if (viewModel.IsPlayerSlot)
+            {
+                viewModel.IsActivatable
+                    .Subscribe(activatable => _activateButton.interactable = activatable)
                     .AddTo(_disposables);
 
-                if (viewModel.IsAssigned)
-                {
-                    viewModel.IsActivatable
-                        .Subscribe(activatable =>
-                        {
-                            if (!activatable)
-                                _energyBarFill.color = _defaultEnergyBarColor;
-                        })
-                        .AddTo(_disposables);
-
-                    pulseCoordinator.Alpha
-                        .Subscribe(a =>
-                        {
-                            if (viewModel.IsActivatable.CurrentValue)
-                            {
-                                var c = _defaultEnergyBarColor;
-                                c.a = a;
-                                _energyBarFill.color = c;
-                            }
-                        })
-                        .AddTo(_disposables);
-                }
+                _activateButton.onClick.AddListener(() => viewModel.OnActivateClicked?.Invoke(viewModel.SlotIndex));
             }
-
-            if (_activateButton)
-            {
-                if (viewModel.IsPlayerSlot)
-                {
-                    viewModel.IsActivatable
-                        .Subscribe(activatable => _activateButton.interactable = activatable)
-                        .AddTo(_disposables);
-
-                    _activateButton.onClick.AddListener(() => viewModel.OnActivateClicked?.Invoke(viewModel.SlotIndex));
-                }
-                else
-                    _activateButton.enabled = false;
-            }
+            else
+                _activateButton.enabled = false;
         }
     }
 }
