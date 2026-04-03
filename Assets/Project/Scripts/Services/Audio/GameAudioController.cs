@@ -20,7 +20,6 @@ namespace Project.Scripts.Services.Audio
         {
             _audioService = audioService;
 
-            // Damage and hero abilities
             eventBus.Subscribe<PlayerHPChangedEvent>(e =>
             {
                 if (e.Current < _prevPlayerHp)
@@ -29,9 +28,12 @@ namespace Project.Scripts.Services.Audio
                 _prevPlayerHp = e.Current;
             }).AddTo(_disposables);
 
-            eventBus.Subscribe<PlayerAvatarAttackedEvent>(_ =>
+            eventBus.Subscribe<AbilityExecutedEvent>(e =>
             {
-                _audioService.Play(AudioTags.Group_Gameplay, AudioTags.Sound_Hit_01);
+                var sound = e.ActionType == HeroActionType.HealAlly
+                    ? AudioTags.Sound_Heal_01
+                    : AudioTags.Sound_Laser_01;
+                _audioService.Play(AudioTags.Group_Gameplay, sound);
             }).AddTo(_disposables);
 
             eventBus.Subscribe<HeroActivatedEvent>(e =>
@@ -42,7 +44,6 @@ namespace Project.Scripts.Services.Audio
                 _audioService.Play(AudioTags.Group_Gameplay, sound);
             }).AddTo(_disposables);
 
-            // Board
             eventBus.Subscribe<MatchPlayedEvent>(e =>
             {
                 var pitch = Mathf.Clamp(1f + e.CascadeIndex * 0.1f, 1f, 2f);
@@ -54,7 +55,6 @@ namespace Project.Scripts.Services.Audio
                 _audioService.Play(AudioTags.Group_Gameplay, AudioTags.Sound_Bomb_01);
             }).AddTo(_disposables);
 
-            // States
             gameStateService.State.Subscribe(state =>
             {
                 if (state == GameState.Win)

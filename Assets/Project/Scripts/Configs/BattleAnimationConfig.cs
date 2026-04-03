@@ -60,6 +60,16 @@ namespace Project.Scripts.Configs
         [Tooltip("Easing curve for the energy fill tween")]
         [SerializeField] private Ease _energyFillEase = Ease.OutCubic;
 
+        [Header("Targeting Highlights")]
+        [Tooltip("Glow color of the unit being dragged from (source)")]
+        [SerializeField] private Color _sourceHighlightColor = Color.white;
+
+        [Tooltip("Glow color of a valid attack target")]
+        [SerializeField] private Color _attackTargetColor = new Color(1f, 0.15f, 0.15f, 1f);
+
+        [Tooltip("Glow color of a valid heal target")]
+        [SerializeField] private Color _healTargetColor = new Color(0.15f, 1f, 0.25f, 1f);
+
         [Header("Floating Numbers")]
         [Tooltip("Color of the damage number label")]
         [SerializeField] private Color _damageNumberColor = new Color(1f, 0.25f, 0.25f, 1f);
@@ -91,6 +101,9 @@ namespace Project.Scripts.Configs
         public Ease HPBarHealEase => _hpBarHealEase;
         public float EnergyFillDuration => _energyFillDuration;
         public Ease EnergyFillEase => _energyFillEase;
+        public Color SourceHighlightColor => _sourceHighlightColor;
+        public Color AttackTargetColor => _attackTargetColor;
+        public Color HealTargetColor => _healTargetColor;
         public Color DamageNumberColor => _damageNumberColor;
         public Color HealNumberColor => _healNumberColor;
         public float FloatDamageDistance => _floatDamageDistance;

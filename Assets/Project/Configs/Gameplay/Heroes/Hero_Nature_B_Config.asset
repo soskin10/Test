@@ -17,4 +17,5 @@ MonoBehaviour:
   _actionType: 1
   _actionValue: 62
   _portrait: {fileID: 0}
+  _maxHP: 130
   _displayName: 

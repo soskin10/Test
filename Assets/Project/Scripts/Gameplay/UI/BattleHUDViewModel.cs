@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
@@ -19,6 +18,7 @@ namespace Project.Scripts.Gameplay.UI
         public HeroSlotViewModel[] PlayerHeroSlots => _playerHeroSlots;
         public HeroSlotViewModel[] EnemyHeroSlots => _enemyHeroSlots;
         public IReadyPulseCoordinator PulseCoordinator { get; }
+        public IAbilityExecutionService AbilityExecution { get; }
         public string EnemyName => _levelConfig.BotConfig ? _levelConfig.BotConfig.OpponentName : string.Empty;
         public BattleAnimationConfig BattleAnimConfig => _battleAnimationConfig;
         public float BoardTopWorldY => _boardBounds.BoardTopWorldY;
@@ -49,7 +49,8 @@ namespace Project.Scripts.Gameplay.UI
             TileKindPaletteConfig palette,
             LevelConfig levelConfig,
             IBoardBoundsProvider boardBounds,
-            IReadyPulseCoordinator pulseCoordinator)
+            IReadyPulseCoordinator pulseCoordinator,
+            IAbilityExecutionService abilityExecution)
         {
             _eventBus = eventBus;
             _enemyState = enemyState;
@@ -61,6 +62,7 @@ namespace Project.Scripts.Gameplay.UI
             _levelConfig = levelConfig;
             _boardBounds = boardBounds;
             PulseCoordinator = pulseCoordinator;
+            AbilityExecution = abilityExecution;
         }
 
 
@@ -85,14 +87,12 @@ namespace Project.Scripts.Gameplay.UI
             _playerHeroSlots = CreateHeroSlotViewModels(
                 BattleSide.Player,
                 _heroService.GetSlots(BattleSide.Player),
-                _levelConfig.PlayerHeroes,
-                _heroService.TryActivate);
+                _levelConfig.PlayerHeroes);
 
             _enemyHeroSlots = CreateHeroSlotViewModels(
                 BattleSide.Enemy,
                 _heroService.GetSlots(BattleSide.Enemy),
-                _levelConfig.EnemyHeroes,
-                null);
+                _levelConfig.EnemyHeroes);
 
             Disposables.Add(_eventBus.Subscribe<HeroEnergyChangedEvent>(OnHeroEnergyChanged));
             Disposables.Add(_eventBus.Subscribe<HeroHPChangedEvent>(OnHeroHPChanged));
@@ -136,14 +136,13 @@ namespace Project.Scripts.Gameplay.UI
 
         private void OnHeroDefeated(HeroDefeatedEvent e)
         {
-            // This handler is reserved for future side effects (sound, particles, etc.).
+            // Reserved for future side effects (sound, particles, etc.).
         }
 
         private HeroSlotViewModel[] CreateHeroSlotViewModels(
             BattleSide side,
             IReadOnlyList<HeroSlotState> states,
-            HeroConfig[] configs,
-            Action<int> onActivate)
+            HeroConfig[] configs)
         {
             var slots = new HeroSlotViewModel[4];
 
@@ -156,7 +155,7 @@ namespace Project.Scripts.Gameplay.UI
                     : Color.gray;
                 var portrait = config ? config.Portrait : null;
 
-                slots[i] = new HeroSlotViewModel(i, side, state, color, portrait, onActivate);
+                slots[i] = new HeroSlotViewModel(i, side, state, color, portrait);
             }
 
             return slots;

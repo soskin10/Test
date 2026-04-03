@@ -37,8 +37,10 @@ namespace Project.Scripts.Services.Combat
         }
 
 
-        public IReadOnlyList<HeroSlotState> GetSlots(BattleSide side) =>
-            side == BattleSide.Player ? _playerSlots : _enemySlots;
+        public IReadOnlyList<HeroSlotState> GetSlots(BattleSide side)
+        {
+            return side == BattleSide.Player ? _playerSlots : _enemySlots;
+        }
 
         public void TryActivate(int slotIndex)
         {
@@ -82,6 +84,28 @@ namespace Project.Scripts.Services.Combat
             slot.CurrentEnergy = Math.Min(slot.MaxEnergy, slot.CurrentEnergy + amount);
             _eventBus.Publish(new HeroEnergyChangedEvent(
                 BattleSide.Enemy, slotIndex, slot.CurrentEnergy, slot.MaxEnergy));
+        }
+
+        public bool TryDischargeHero(BattleSide side, int slotIndex, out HeroActionType actionType, out int actionValue)
+        {
+            actionType = default;
+            actionValue = 0;
+
+            if (slotIndex is < 0 or >= SlotCount)
+                return false;
+
+            ref var slot = ref GetSlotRef(side, slotIndex);
+
+            if (!slot.IsReady)
+                return false;
+
+            actionType = slot.ActionType;
+            actionValue = slot.ActionValue;
+
+            slot.CurrentEnergy = 0;
+            _eventBus.Publish(new HeroEnergyChangedEvent(side, slotIndex, 0, slot.MaxEnergy));
+
+            return true;
         }
 
         public void ApplyDamageToHero(BattleSide side, int slotIndex, int amount)

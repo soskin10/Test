@@ -30,7 +30,6 @@ namespace Project.Scripts.Services.Combat
         public void Start()
         {
             _subscriptions.Add(_eventBus.Subscribe<CascadeCompletedEvent>(OnCascadeCompleted));
-            _subscriptions.Add(_eventBus.Subscribe<PlayerAvatarActivatedEvent>(OnPlayerAvatarActivated));
         }
 
         public void Dispose()
@@ -39,14 +38,24 @@ namespace Project.Scripts.Services.Combat
         }
 
 
+        public int TryRelease()
+        {
+            var released = _engine.TryRelease();
+            if (released <= 0)
+                return 0;
+
+            PublishEnergyChanged();
+            return released;
+        }
+
+
         private void OnCascadeCompleted(CascadeCompletedEvent e)
         {
             var before = _engine.Snapshot;
             var added = _engine.TryAddEnergy(e.Total);
-
             if (added <= 0)
             {
-                Debug.Log($"[PlayerAvatar] Bar full ({before.CurrentEnergy}/{before.MaxEnergy}) — {e.Total} energy blocked until release");
+                Debug.Log($"[PlayerAvatar] Bar full ({before.CurrentEnergy}/{before.MaxEnergy}) - {e.Total} energy blocked until release");
                 return;
             }
 
@@ -54,16 +63,6 @@ namespace Project.Scripts.Services.Combat
             Debug.Log(e.Breakdown.ToLogString());
             Debug.Log($"[PlayerAvatar] {after.CurrentEnergy}/{after.MaxEnergy}{(after.IsReady ? " - ready to attack" : string.Empty)}");
             PublishEnergyChanged();
-        }
-
-        private void OnPlayerAvatarActivated(PlayerAvatarActivatedEvent _)
-        {
-            var released = _engine.TryRelease();
-            if (released <= 0)
-                return;
-
-            PublishEnergyChanged();
-            _eventBus.Publish(new PlayerAvatarAttackedEvent(released));
         }
 
         private void PublishEnergyChanged()

@@ -24,7 +24,6 @@ namespace Project.Scripts.Services.Combat
             MaxHP = levelConfig.EnemyHP;
             CurrentHP = levelConfig.EnemyHP;
 
-            _subscriptions.Add(_eventBus.Subscribe<PlayerAvatarAttackedEvent>(OnPlayerAvatarAttacked));
             _subscriptions.Add(_eventBus.Subscribe<HeroActivatedEvent>(OnHeroActivated));
         }
 
@@ -34,25 +33,12 @@ namespace Project.Scripts.Services.Combat
         }
 
 
-        private void OnPlayerAvatarAttacked(PlayerAvatarAttackedEvent e)
-        {
-            Debug.Log($"[Combat] Player avatar attacked for {e.DamageAmount} dmg (enemy HP: {CurrentHP} → {Math.Max(0, CurrentHP - e.DamageAmount)}/{MaxHP})");
-            ApplyDamage(e.DamageAmount);
-        }
-
-        private void OnHeroActivated(HeroActivatedEvent e)
-        {
-            if (e.Side == BattleSide.Player && e.ActionType == HeroActionType.DealDamage)
-                ApplyDamage(e.ActionValue);
-            else if (e.Side == BattleSide.Enemy && e.ActionType == HeroActionType.HealAlly)
-                ApplyHeal(e.ActionValue);
-        }
-
-        private void ApplyDamage(int amount)
+        public void ApplyDamage(int amount)
         {
             if (CurrentHP <= 0)
                 return;
 
+            Debug.Log($"[Combat] Damage applied to enemy for {amount} (HP: {CurrentHP} → {Math.Max(0, CurrentHP - amount)}/{MaxHP})");
             CurrentHP = Math.Max(0, CurrentHP - amount);
             _eventBus.Publish(new EnemyHPChangedEvent(CurrentHP, MaxHP));
 
@@ -60,13 +46,20 @@ namespace Project.Scripts.Services.Combat
                 _eventBus.Publish(new EnemyDefeatedEvent());
         }
 
-        private void ApplyHeal(int amount)
+        public void ApplyHeal(int amount)
         {
             if (CurrentHP >= MaxHP || amount <= 0)
                 return;
 
             CurrentHP = Math.Min(MaxHP, CurrentHP + amount);
             _eventBus.Publish(new EnemyHPChangedEvent(CurrentHP, MaxHP));
+        }
+
+
+        private void OnHeroActivated(HeroActivatedEvent e)
+        {
+            if (e.Side == BattleSide.Enemy && e.ActionType == HeroActionType.HealAlly)
+                ApplyHeal(e.ActionValue);
         }
     }
 }

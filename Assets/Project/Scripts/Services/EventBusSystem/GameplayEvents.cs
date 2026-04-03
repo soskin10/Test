@@ -221,22 +221,6 @@ namespace Project.Scripts.Services.EventBusSystem
             }
         }
 
-        public readonly struct PlayerAvatarActivatedEvent
-        {
-
-        }
-
-        public readonly struct PlayerAvatarAttackedEvent
-        {
-            public int DamageAmount { get; }
-
-
-            public PlayerAvatarAttackedEvent(int damageAmount)
-            {
-                DamageAmount = damageAmount;
-            }
-        }
-
         public readonly struct EnemyAvatarEnergyChangedEvent
         {
             public int Current { get; }
@@ -258,6 +242,23 @@ namespace Project.Scripts.Services.EventBusSystem
             public EnemyAvatarAttackedEvent(int damageAmount)
             {
                 DamageAmount = damageAmount;
+            }
+        }
+
+        public readonly struct AbilityExecutedEvent
+        {
+            public UnitDescriptor Source { get; }
+            public UnitDescriptor Target { get; }
+            public HeroActionType ActionType { get; }
+            public int Value { get; }
+
+
+            public AbilityExecutedEvent(UnitDescriptor source, UnitDescriptor target, HeroActionType actionType, int value)
+            {
+                Source = source;
+                Target = target;
+                ActionType = actionType;
+                Value = value;
             }
         }
     }

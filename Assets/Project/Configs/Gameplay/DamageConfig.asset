@@ -21,7 +21,7 @@ MonoBehaviour:
   _cascadeMultiplierStep: 0.2
   _multiMatchBonus: 0.2
   _bombDamagePerTile: 3
-  _maxAvatarCharge: 150
+  _maxAvatarCharge: 110
   _match3Energy: 1
   _match4Energy: 3
   _match5PlusEnergy: 5

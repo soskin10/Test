@@ -1,12 +1,13 @@
 using DG.Tweening;
 using Project.Scripts.Configs;
+using Project.Scripts.Shared.Heroes;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Project.Scripts.Gameplay.UI
 {
-    public class HeroSlotView : MonoBehaviour
+    public class HeroSlotView : MonoBehaviour, ITargetableView
     {
         [Header("Visuals")]
         [Tooltip("Background Image")]
@@ -22,17 +23,23 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("Reusable HP bar component — wire up HPBar and LagBar images inside the prefab")]
         [SerializeField] private HPBarComponent _hpBar;
 
-        [Header("Interaction")]
-        [Tooltip("Button for activating this hero — assign only on player slots; leave null for enemy slots")]
-        [SerializeField] private Button _activateButton;
+        [Header("Targeting")]
+        [Tooltip("Glow image shown when this unit is highlighted as source or target. Disabled by default.")]
+        [SerializeField] private Image _glowImage;
 
+        
+        public UnitDescriptor Descriptor => UnitDescriptor.Hero(_viewModel.Side, _viewModel.SlotIndex, _viewModel.ActionType);
+        public RectTransform HitArea => (RectTransform)transform;
+        public bool IsReadySource => _viewModel.IsAssigned && _viewModel.IsActivatable.CurrentValue;
 
+        
         private Color _defaultEnergyBarColor;
         private CompositeDisposable _disposables = new();
         private BattleAnimationConfig _config;
         private Tweener _energyFillTween;
-
-
+        private HeroSlotViewModel _viewModel;
+        
+        
         private void Awake()
         {
             if (_energyBarFill)
@@ -41,9 +48,6 @@ namespace Project.Scripts.Gameplay.UI
 
         private void OnDestroy()
         {
-            if (_activateButton)
-                _activateButton.onClick.RemoveAllListeners();
-
             _energyFillTween?.Kill();
             _disposables?.Dispose();
         }
@@ -51,12 +55,50 @@ namespace Project.Scripts.Gameplay.UI
 
         public void Bind(HeroSlotViewModel viewModel, IReadyPulseCoordinator pulseCoordinator, BattleAnimationConfig config)
         {
+            _viewModel = viewModel;
             _config = config;
 
             BindPortrait(viewModel);
             BindEnergyBar(viewModel, pulseCoordinator);
             BindHPBar(viewModel);
-            BindButton(viewModel);
+        }
+        
+        public bool IsValidTarget(UnitDescriptor source)
+        {
+            if (_viewModel == null || !_viewModel.IsAssigned || _viewModel.IsDefeated.CurrentValue)
+                return false;
+
+            if (source.ActionType == HeroActionType.DealDamage && _viewModel.Side == BattleSide.Enemy)
+                return true;
+
+            if (source.ActionType == HeroActionType.HealAlly && _viewModel.Side == BattleSide.Player)
+                return _viewModel.HPFill.CurrentValue < 1f;
+
+            return false;
+        }
+
+        public void SetSourceHighlight(bool active)
+        {
+            if (!_glowImage)
+                return;
+
+            if (active && _config)
+                _glowImage.color = _config.SourceHighlightColor;
+
+            _glowImage.enabled = active;
+        }
+
+        public void SetTargetHighlight(bool active, HeroActionType actionType)
+        {
+            if (!_glowImage)
+                return;
+
+            if (active && _config)
+                _glowImage.color = actionType == HeroActionType.HealAlly
+                    ? _config.HealTargetColor
+                    : _config.AttackTargetColor;
+
+            _glowImage.enabled = active;
         }
 
 
@@ -149,23 +191,6 @@ namespace Project.Scripts.Gameplay.UI
             viewModel.IsDefeated
                 .Subscribe(defeated => _hpBar.gameObject.SetActive(!defeated))
                 .AddTo(_disposables);
-        }
-
-        private void BindButton(HeroSlotViewModel viewModel)
-        {
-            if (!_activateButton)
-                return;
-
-            if (viewModel.IsPlayerSlot)
-            {
-                viewModel.IsActivatable
-                    .Subscribe(activatable => _activateButton.interactable = activatable)
-                    .AddTo(_disposables);
-
-                _activateButton.onClick.AddListener(() => viewModel.OnActivateClicked?.Invoke(viewModel.SlotIndex));
-            }
-            else
-                _activateButton.enabled = false;
         }
     }
 }

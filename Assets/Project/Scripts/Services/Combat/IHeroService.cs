@@ -11,6 +11,7 @@ namespace Project.Scripts.Services.Combat
         void TryActivate(BattleSide side, int slotIndex);
         void AssignEnemyHeroes(HeroConfig[] heroes);
         void AddEnemyHeroEnergy(int slotIndex, int amount);
+        bool TryDischargeHero(BattleSide side, int slotIndex, out HeroActionType actionType, out int actionValue);
         void ApplyDamageToHero(BattleSide side, int slotIndex, int amount);
         void ApplyHealToHero(BattleSide side, int slotIndex, int amount);
     }

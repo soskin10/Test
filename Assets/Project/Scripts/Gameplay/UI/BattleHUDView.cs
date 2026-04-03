@@ -21,7 +21,7 @@ namespace Project.Scripts.Gameplay.UI
         [Tooltip("AvatarSlotView for the enemy avatar — portrait, HP bar, energy bar, hit reaction")]
         [SerializeField] private AvatarSlotView _enemyAvatarSlot;
 
-        [Tooltip("AvatarSlotView for the player avatar — portrait, HP bar, energy bar, hit reaction, activation input")]
+        [Tooltip("AvatarSlotView for the player avatar — portrait, HP bar, energy bar, hit reaction")]
         [SerializeField] private AvatarSlotView _playerAvatarSlot;
 
         [Tooltip("RectTransform of the player avatar panel — positioned at board top edge at runtime")]
@@ -41,6 +41,10 @@ namespace Project.Scripts.Gameplay.UI
 
         [Tooltip("Parent RectTransform for pooled floating damage objects; leave empty to use this transform")]
         [SerializeField] private RectTransform _floatingDamageContainer;
+
+        [Header("Targeting")]
+        [Tooltip("Full-screen overlay MonoBehaviour that handles drag-to-target gestures")]
+        [SerializeField] private TargetingInputHandler _targetingInputHandler;
 
         [Header("Layout")]
         [Tooltip("Extra vertical offset in canvas units added above the board top edge (positive = higher)")]
@@ -103,6 +107,8 @@ namespace Project.Scripts.Gameplay.UI
                     maxSize: 16);
             }
 
+            SetupTargeting();
+
             ApplyTopSafeAreaOffset();
 
 #if UNITY_EDITOR
@@ -135,6 +141,28 @@ namespace Project.Scripts.Gameplay.UI
             ApplyBoardWidth(ViewModel.BoardHalfWidth, ViewModel.BoardCenterX, _cachedCamera);
         }
 #endif
+
+        private void SetupTargeting()
+        {
+            if (!_targetingInputHandler)
+                return;
+
+            var overlayCamera = _isOverlay ? null : _canvas.worldCamera;
+            var registry = new TargetingRegistry(overlayCamera);
+
+            registry.Register(_playerAvatarSlot);
+            registry.Register(_enemyAvatarSlot);
+
+            if (_playerHeroSlots != null)
+                foreach (var slot in _playerHeroSlots)
+                    if (slot) registry.Register(slot);
+
+            if (_enemyHeroSlots != null)
+                foreach (var slot in _enemyHeroSlots)
+                    if (slot) registry.Register(slot);
+
+            _targetingInputHandler.Init(registry, ViewModel.AbilityExecution);
+        }
 
         private void ApplyTopSafeAreaOffset()
         {

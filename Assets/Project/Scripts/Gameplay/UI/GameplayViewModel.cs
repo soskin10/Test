@@ -42,7 +42,7 @@ namespace Project.Scripts.Gameplay.UI
             CurrentLevel = _levelConfig.LevelId;
             EnemyHP.Value = _enemyState.CurrentHP;
 
-            Disposables.Add(_eventBus.Subscribe<PlayerAvatarAttackedEvent>(OnPlayerAvatarAttacked));
+            Disposables.Add(_eventBus.Subscribe<AbilityExecutedEvent>(OnAbilityExecuted));
             Disposables.Add(_eventBus.Subscribe<EnemyHPChangedEvent>(OnEnemyHPChanged));
             Disposables.Add(_eventBus.Subscribe<EnergyChangedEvent>(OnEnergyChanged));
 
@@ -61,9 +61,15 @@ namespace Project.Scripts.Gameplay.UI
         }
 
 
-        private void OnPlayerAvatarAttacked(PlayerAvatarAttackedEvent e) => LastDamage.Value = e.DamageAmount;
+        private void OnAbilityExecuted(AbilityExecutedEvent e)
+        {
+            LastDamage.Value = e.Value;
+        }
 
-        private void OnEnemyHPChanged(EnemyHPChangedEvent e) => EnemyHP.Value = e.Current;
+        private void OnEnemyHPChanged(EnemyHPChangedEvent e)
+        {
+            EnemyHP.Value = e.Current;
+        }
 
         private void OnEnergyChanged(EnergyChangedEvent e)
         {

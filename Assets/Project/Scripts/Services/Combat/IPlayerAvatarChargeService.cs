@@ -5,5 +5,6 @@ namespace Project.Scripts.Services.Combat
         int CurrentEnergy { get; }
         int MaxEnergy { get; }
         bool IsReady { get; }
+        int TryRelease();
     }
 }

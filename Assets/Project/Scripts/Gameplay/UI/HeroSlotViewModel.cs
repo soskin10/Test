@@ -12,12 +12,12 @@ namespace Project.Scripts.Gameplay.UI
         public Sprite Portrait { get; }
         public int SlotIndex { get; }
         public BattleSide Side { get; }
+        public HeroActionType ActionType { get; }
         public bool IsPlayerSlot => Side == BattleSide.Player;
         public ReactiveProperty<float> EnergyFill { get; } = new(0f);
         public ReactiveProperty<bool>  IsActivatable { get; } = new(false);
         public ReactiveProperty<float> HPFill { get; }
         public ReactiveProperty<bool>  IsDefeated { get; } = new(false);
-        public Action<int> OnActivateClicked { get; }
 
 
         public HeroSlotViewModel(
@@ -25,15 +25,14 @@ namespace Project.Scripts.Gameplay.UI
             BattleSide side,
             HeroSlotState state,
             Color color,
-            Sprite portrait,
-            Action<int> onActivate)
+            Sprite portrait)
         {
             SlotIndex = slotIndex;
             Side = side;
             IsAssigned = state.IsAssigned;
+            ActionType = state.ActionType;
             SlotColor = color;
             Portrait = portrait;
-            OnActivateClicked = onActivate;
 
             HPFill = new ReactiveProperty<float>(state.IsAssigned && state.MaxHP > 0 ? (float)state.CurrentHP / state.MaxHP : 1f);
         }

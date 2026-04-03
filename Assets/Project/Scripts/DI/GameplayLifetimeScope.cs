@@ -29,6 +29,7 @@ namespace Project.Scripts.DI
             builder.Register<IHeroService, HeroService>(Lifetime.Singleton);
             builder.RegisterEntryPoint<PlayerAvatarChargeService>().As<IPlayerAvatarChargeService>();
             builder.Register<IEnemyAvatarChargeService, EnemyAvatarChargeService>(Lifetime.Singleton);
+            builder.Register<IAbilityExecutionService, AbilityExecutionService>(Lifetime.Singleton);
 
             builder.Register<GameplayViewModel>(Lifetime.Singleton);
             builder.Register<MoveBarViewModel>(Lifetime.Singleton);

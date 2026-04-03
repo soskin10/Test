@@ -62,9 +62,7 @@ namespace Project.Scripts.Services.Combat
 
         private void OnHeroActivated(HeroActivatedEvent e)
         {
-            if (e.ActionType == HeroActionType.HealAlly && e.Side == BattleSide.Player)
-                Heal(e.ActionValue);
-            else if (e.ActionType == HeroActionType.DealDamage && e.Side == BattleSide.Enemy)
+            if (e.ActionType == HeroActionType.DealDamage && e.Side == BattleSide.Enemy)
                 TakeDamage(e.ActionValue);
         }
     }
