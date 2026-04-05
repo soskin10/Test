@@ -15,7 +15,6 @@ namespace Project.Scripts.Gameplay
         private readonly UIService _uiService;
         private readonly UIConfig _uiConfig;
         private readonly IMoveCounterService _moveCounter;
-        private readonly IEnemyStateService _enemyState;
         private readonly ILevelProgressionService _progression;
         private readonly BattleAnimationConfig _battleAnimConfig;
         private readonly LevelConfig _levelConfig;
@@ -29,7 +28,6 @@ namespace Project.Scripts.Gameplay
             UIService uiService,
             UIConfig uiConfig,
             IMoveCounterService moveCounter,
-            IEnemyStateService enemyState,
             ILevelProgressionService progression,
             BattleAnimationConfig battleAnimConfig,
             LevelConfig levelConfig)
@@ -38,7 +36,6 @@ namespace Project.Scripts.Gameplay
             _uiService = uiService;
             _uiConfig = uiConfig;
             _moveCounter = moveCounter;
-            _enemyState = enemyState;
             _progression = progression;
             _battleAnimConfig = battleAnimConfig;
             _levelConfig = levelConfig;
@@ -71,7 +68,7 @@ namespace Project.Scripts.Gameplay
         {
             await UniTask.Delay(TimeSpan.FromSeconds(_battleAnimConfig.ResultScreenDelay));
             var bot = _levelConfig.BotConfig;
-            var viewModel = new WinViewModel(_moveCounter, _enemyState, _progression,
+            var viewModel = new WinViewModel(_moveCounter, _progression,
                 _levelConfig.LevelId,
                 bot ? bot.OpponentName : string.Empty,
                 () => _uiService.Close<WinView>());
@@ -82,7 +79,7 @@ namespace Project.Scripts.Gameplay
         {
             await UniTask.Delay(TimeSpan.FromSeconds(_battleAnimConfig.ResultScreenDelay));
             var bot = _levelConfig.BotConfig;
-            var viewModel = new LoseViewModel(_moveCounter, _enemyState, _progression,
+            var viewModel = new LoseViewModel(_moveCounter, _progression,
                 _levelConfig.LevelId,
                 bot ? bot.OpponentName : string.Empty,
                 () => _uiService.Close<LoseView>());

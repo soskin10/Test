@@ -9,27 +9,23 @@ namespace Project.Scripts.Gameplay.UI
     public class LoseViewModel : BaseViewModel
     {
         public int MovesUsed { get; private set; }
-        public int TotalDamage { get; private set; }
         public int LevelId { get; }
         public string OpponentName { get; }
 
 
         private readonly IMoveCounterService _moveCounter;
-        private readonly IEnemyStateService _enemyState;
         private readonly ILevelProgressionService _progression;
         private readonly Action _onClose;
 
 
         public LoseViewModel(
             IMoveCounterService moveCounter,
-            IEnemyStateService enemyState,
             ILevelProgressionService progression,
             int levelId,
             string opponentName,
             Action onClose)
         {
             _moveCounter = moveCounter;
-            _enemyState = enemyState;
             _progression = progression;
             LevelId = levelId;
             OpponentName = opponentName;
@@ -47,7 +43,6 @@ namespace Project.Scripts.Gameplay.UI
         protected override UniTask OnInitializeAsync()
         {
             MovesUsed = _moveCounter.MovesUsed;
-            TotalDamage = _enemyState.MaxHP;
             return UniTask.CompletedTask;
         }
     }
