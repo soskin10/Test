@@ -2,6 +2,7 @@
 using System;
 using System.Reflection;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Levels;
 using Project.Scripts.Constants;
 using Project.Scripts.Services.BoardEdit;
 using Project.Scripts.Shared.Tiles;

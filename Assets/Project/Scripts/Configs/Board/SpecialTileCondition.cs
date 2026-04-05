@@ -1,4 +1,4 @@
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Board
 {
     public enum SpecialTileCondition
     {

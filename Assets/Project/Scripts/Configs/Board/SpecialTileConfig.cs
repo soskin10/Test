@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Board
 {
     [CreateAssetMenu(fileName = "SpecialTileConfig", menuName = "Configs/Special Tile Config")]
     public class SpecialTileConfig : ScriptableObject

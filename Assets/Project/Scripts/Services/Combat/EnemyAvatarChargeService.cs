@@ -1,5 +1,6 @@
 using System;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Services.EventBusSystem.Events;
 using Project.Scripts.Shared.Avatar;

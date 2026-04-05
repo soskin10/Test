@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Battle
 {
     [CreateAssetMenu(fileName = "BattleViewConfig", menuName = "Configs/Battle/Battle View Config")]
     public class BattleViewConfig : ScriptableObject

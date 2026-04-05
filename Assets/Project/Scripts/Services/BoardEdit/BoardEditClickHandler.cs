@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using DG.Tweening;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Levels;
 using Project.Scripts.Services.Grid;
 using Project.Scripts.Shared;
 using UnityEngine;

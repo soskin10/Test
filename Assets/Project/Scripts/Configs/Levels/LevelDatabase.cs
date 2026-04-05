@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Levels
 {
     [CreateAssetMenu(fileName = "LevelDatabase", menuName = "Configs/Level Database")]
     public class LevelDatabase : ScriptableObject

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Services.Combat;
 using Project.Scripts.Services.EventBusSystem;
 using Project.Scripts.Shared.Bot;

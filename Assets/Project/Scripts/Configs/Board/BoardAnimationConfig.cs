@@ -1,7 +1,7 @@
 using DG.Tweening;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Board
 {
     [CreateAssetMenu(fileName = "BoardAnimationConfig", menuName = "Configs/Board Animation Config")]
     public class BoardAnimationConfig : ScriptableObject

@@ -1,5 +1,9 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
+using Project.Scripts.Configs.Board;
+using Project.Scripts.Configs.Levels;
+using Project.Scripts.Configs.UI;
 using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Gameplay.WorldSpace;
 using Project.Scripts.Services;

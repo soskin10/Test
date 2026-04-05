@@ -1,4 +1,6 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Board;
+using Project.Scripts.Configs.Levels;
 using UnityEngine;
 
 namespace Project.Scripts.Gameplay

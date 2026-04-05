@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.UI;
 using Project.Scripts.Services;
 using Project.Scripts.Services.Combat;
 using Project.Scripts.Services.EventBusSystem;

@@ -1,7 +1,7 @@
 using Project.Scripts.Shared.Moves;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.UI
 {
     [CreateAssetMenu(fileName = "MoveBarConfig", menuName = "Configs/Move Bar Config")]
     public class MoveBarConfig : ScriptableObject

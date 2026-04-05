@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Board;
+using Project.Scripts.Configs.Levels;
 using Project.Scripts.Shared;
 using Project.Scripts.Shared.Grid;
 using Project.Scripts.Shared.Tiles;

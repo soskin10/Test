@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Battle
 {
     [CreateAssetMenu(fileName = "MatchDamageConfig", menuName = "Configs/Battle/Match Damage Config")]
     public class MatchDamageConfig : ScriptableObject

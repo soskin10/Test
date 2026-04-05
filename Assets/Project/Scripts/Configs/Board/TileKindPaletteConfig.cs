@@ -2,7 +2,7 @@ using System;
 using Project.Scripts.Shared.Tiles;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Board
 {
     [CreateAssetMenu(fileName = "TileKindPaletteConfig", menuName = "Configs/TileKindPalette Config")]
     public class TileKindPaletteConfig : ScriptableObject

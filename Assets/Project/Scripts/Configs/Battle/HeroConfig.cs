@@ -2,7 +2,7 @@ using Project.Scripts.Shared.Heroes;
 using Project.Scripts.Shared.Tiles;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Battle
 {
     [CreateAssetMenu(fileName = "HeroConfig", menuName = "Configs/Hero Config")]
     public class HeroConfig : ScriptableObject

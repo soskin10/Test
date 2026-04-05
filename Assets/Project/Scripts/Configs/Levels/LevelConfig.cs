@@ -1,6 +1,8 @@
+using Project.Scripts.Configs.Battle;
+using Project.Scripts.Configs.Board;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Levels
 {
     public enum LevelGoalType
     {

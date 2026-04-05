@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Services.Input;
 using Project.Scripts.Services.UISystem;

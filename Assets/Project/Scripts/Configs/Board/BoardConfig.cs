@@ -1,7 +1,7 @@
 using Project.Scripts.Tiles;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Board
 {
     [CreateAssetMenu(fileName = "BoardConfig", menuName = "Configs/Board Config")]
     public class BoardConfig : ScriptableObject

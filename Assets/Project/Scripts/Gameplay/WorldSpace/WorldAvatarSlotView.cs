@@ -1,5 +1,6 @@
 using DG.Tweening;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Gameplay.UI;
 using Project.Scripts.Shared.Heroes;
 using R3;

@@ -1,3 +1,7 @@
+using Project.Scripts.Configs.Battle;
+using Project.Scripts.Configs.Board;
+using Project.Scripts.Configs.Levels;
+using Project.Scripts.Configs.UI;
 using Project.Scripts.Services.Audio.AudioSystem.Configs;
 using UnityEngine;
 

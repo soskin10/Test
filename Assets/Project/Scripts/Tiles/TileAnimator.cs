@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Board;
 using UnityEngine;
 
 namespace Project.Scripts.Tiles

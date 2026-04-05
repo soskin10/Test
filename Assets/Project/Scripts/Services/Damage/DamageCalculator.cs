@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Shared.Damage;
 using Project.Scripts.Shared.Grid;
 using UnityEngine;

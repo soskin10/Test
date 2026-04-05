@@ -1,4 +1,5 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Levels;
 using Project.Scripts.Constants;
 using UnityEngine.SceneManagement;
 

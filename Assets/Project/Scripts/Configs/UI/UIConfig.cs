@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.UI
 {
     [CreateAssetMenu(fileName = "UIConfig", menuName = "Configs/UI Config")]
     public class UIConfig : ScriptableObject

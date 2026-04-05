@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Battle
 {
     [CreateAssetMenu(fileName = "HeroEnergyConfig", menuName = "Configs/Battle/Hero Energy Config")]
     public class HeroEnergyConfig : ScriptableObject

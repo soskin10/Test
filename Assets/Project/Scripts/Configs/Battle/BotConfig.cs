@@ -1,7 +1,7 @@
 using Project.Scripts.Shared.Bot;
 using UnityEngine;
 
-namespace Project.Scripts.Configs
+namespace Project.Scripts.Configs.Battle
 {
     [CreateAssetMenu(fileName = "BotConfig", menuName = "Configs/Bot Config")]
     public class BotConfig : ScriptableObject

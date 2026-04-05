@@ -1,4 +1,5 @@
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Board;
 using Project.Scripts.Shared.Tiles;
 
 namespace Project.Scripts.Tiles

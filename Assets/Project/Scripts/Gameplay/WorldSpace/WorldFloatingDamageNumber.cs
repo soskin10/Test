@@ -1,6 +1,7 @@
 using System;
 using DG.Tweening;
 using Project.Scripts.Configs;
+using Project.Scripts.Configs.Battle;
 using Project.Scripts.Gameplay.UI;
 using TMPro;
 using UnityEngine;
